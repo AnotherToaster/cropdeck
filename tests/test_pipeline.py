@@ -115,6 +115,18 @@ class Split(unittest.TestCase):
         write_trays(self.scans, [(f, f2)])  # the "backs" scan is another tray's fronts
         r = self.split()
         self.assertIn("STOPPED", r.stdout + r.stderr)
+        self.assertEqual(r.returncode, 1)
+        self.assertEqual(list(self.out.glob("card_*.png")), [])
+
+    def test_a_skipped_tray_is_named_not_reported_as_done(self):
+        f, _, _ = synth.tray(0, layout="2x4-sideways")  # 8 fronts ...
+        _, b, _ = synth.tray(0, layout="2x3-sideways")  # ... but only 6 backs
+        write_trays(self.scans, [(f, b)])
+        r = self.split()
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("Nothing written for 1 tray(s)", r.stdout)
+        self.assertIn("tray_0001.png / tray_0002.png", r.stdout)
+        self.assertNotIn("nothing new", r.stdout)
         self.assertEqual(list(self.out.glob("card_*.png")), [])
 
     def test_white_and_dark_backing_both_work(self):

@@ -134,8 +134,10 @@ def run_paired(files, out_dir: Path, args, rows: list, state: dict) -> int:
                 f"{b_path.name} has {len(b_rects)} -- pairing skipped for this tray, "
                 f"fix the scan and re-run"
             )
+            state.setdefault("_skipped", []).append(f"{f_path.name} / {b_path.name}")
             continue
         if not f_rects:
+            state.setdefault("_skipped", []).append(f"{f_path.name} / {b_path.name}")
             continue
 
         f_th = thumbs(f_img, f_rects, f_dpi, args, bg_f)
@@ -374,6 +376,7 @@ def run(args) -> int:
         else run_single(files, out_dir, args, rows, state)
     )
     stopped = state.pop("_stopped", False)
+    skipped = state.pop("_skipped", [])
     save_state(out_dir, state)
 
     if rows:
@@ -384,11 +387,16 @@ def run(args) -> int:
         )
     elif stopped:
         print("\nStopped before writing anything - see the message above.")
-    else:
+    elif not skipped:
         print(
             "\nDone: nothing new - every scan in that folder has already been cut."
             "\n(Add new scans and run again, or pass --restart to redo the lot.)"
         )
+    if skipped:
+        print(f"\nNothing written for {len(skipped)} tray(s) - see the messages above:")
+        for tray in skipped:
+            print(f"  - {tray}")
+        print("Fix those scans and run again; they are picked up then.")
     if args.debug:
         print(f"Debug overlays in {out_dir / '_debug'}")
 
@@ -399,6 +407,7 @@ def run(args) -> int:
     print("\n--- where you are ------------------------------------------")
     print(f"  {total} card(s) cut so far, from {trays} tray(s).")
     print(f"  Next card will be number {state['next']:04d}.")
-    print("  Finished scans can stay in the scans folder - they are skipped.")
+    print("  Finished scans can stay in the scans folder - they are never cut twice.")
     print("------------------------------------------------------------")
-    return 0
+    # a tray that was skipped or stopped is a problem the caller must not miss
+    return 1 if stopped or skipped else 0

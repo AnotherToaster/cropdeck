@@ -91,7 +91,12 @@ two fronts, so a card that moved halfway towards a neighbour's slot refuses the 
 3. The slots must line up geometrically (above).
 4. A proof sheet per tray in `_pairs/` — the last line of defence, for a human eye.
 
-On any failure the run stops **before writing anything** and skips every later tray.
+Nothing is ever written for a tray that fails a guard. A count mismatch (1), or a tray where no
+cards are found, skips **that tray only** - the run goes on with the next one. A failed backs check
+(2) or slot check (3) **stops the run**: every later tray waits too, because a missing or swapped
+scan shifts everything after it. Either way the summary names each tray that was left out, and the
+command ends with exit code 1, so `cropdeck run` does not go on to `--names` or `--tracker` and a
+script notices.
 
 ### Resume
 `sorted/.cardsplit-state.json` holds the next card number, every scan already processed (by name and
