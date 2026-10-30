@@ -1,0 +1,181 @@
+{
+  "name": "English",
+  "date_format": "YYYY-MM-DD",
+  "sheets": {
+    "overview": "Overview",
+    "inventory": "Inventory",
+    "duplicates": "Duplicates",
+    "lists": "Lists"
+  },
+  "columns": {
+    "id": [
+      "ID",
+      "card number - ties the front image to the back"
+    ],
+    "name": [
+      "Name",
+      "as printed on the card"
+    ],
+    "name_en": [
+      "Name EN",
+      "English name"
+    ],
+    "set": [
+      "Set",
+      "e.g. Jungle, Celebrations, Fusion Strike"
+    ],
+    "number": [
+      "Number",
+      "collector number, e.g. 9/25"
+    ],
+    "language": [
+      "Language",
+      "language of the card: EN / DE / FR / IT / ES / JP ..."
+    ],
+    "variant": [
+      "Variant",
+      "Normal, Reverse Holo, Holo, 1st Edition, Promo, Graded"
+    ],
+    "condition": [
+      "Condition",
+      "Cardmarket scale: M NM EX GD LP PL PO"
+    ],
+    "grading": [
+      "Grading",
+      "empty, or e.g. PSA 9 / BGS 9.5 and the certificate number"
+    ],
+    "copy": [
+      "Copy",
+      "which copy of this card this is (formula)"
+    ],
+    "count": [
+      "Count",
+      "how many of this card you own (formula)"
+    ],
+    "location": [
+      "Location",
+      "physical place, worked out from the ID (formula)"
+    ],
+    "status": [
+      "Status",
+      "Scanned / Ready / Listed / Reserved / Sold / Shipped / Keeping"
+    ],
+    "platform": [
+      "Platform",
+      "where it is listed"
+    ],
+    "listing_url": [
+      "Listing URL",
+      "link to the listing"
+    ],
+    "price": [
+      "Price {currency}",
+      "the price you ask"
+    ],
+    "sold_price": [
+      "Sold {currency}",
+      "what you actually got"
+    ],
+    "sold_on": [
+      "Sold on",
+      "date"
+    ],
+    "buyer_note": [
+      "Buyer / note",
+      ""
+    ],
+    "image_front": [
+      "Front image",
+      "file name of the front"
+    ],
+    "image_back": [
+      "Back image",
+      "file name of the back"
+    ],
+    "ocr": [
+      "OCR",
+      "recognition confidence; check anything below 1.00"
+    ]
+  },
+  "statuses": {
+    "scanned": "Scanned",
+    "ready": "Ready",
+    "listed": "Listed",
+    "reserved": "Reserved",
+    "sold": "Sold",
+    "shipped": "Shipped",
+    "keeping": "Keeping"
+  },
+  "variants": {
+    "normal": "Normal",
+    "reverse_holo": "Reverse Holo",
+    "holo": "Holo",
+    "first_edition": "1st Edition",
+    "shadowless": "Shadowless",
+    "promo": "Promo",
+    "graded": "Graded"
+  },
+  "conditions": {
+    "title": "Condition (Cardmarket scale)",
+    "M": "Mint - perfect, no room for wear",
+    "NM": "Near Mint - minimal flaws; clouding rules out NM",
+    "EX": "Excellent - visibly used, but looked after",
+    "GD": "Good - clear wear",
+    "LP": "Light Played - heavy signs of use",
+    "PL": "Played - badly worn, water damage, bends",
+    "PO": "Poor - required for altered cards, blackened edges, stamps, ink",
+    "source": "Source: help.cardmarket.com/en/CardCondition"
+  },
+  "location": {
+    "box": "Box ",
+    "slot": " / Slot "
+  },
+  "lists": {
+    "setting": "Setting",
+    "value": "Value",
+    "box_size": "Cards per box (for Location)",
+    "currency": "Currency",
+    "language": "Language of this workbook",
+    "note": "Location in the inventory follows the box size; language and currency stay as the workbook was created."
+  },
+  "overview": {
+    "title": "Cards - overview",
+    "note": "Recalculated on every cropdeck track run. Do not type here - everything goes into the inventory.",
+    "stock": "Collection",
+    "total": "Cards in total",
+    "unrecognised": "of which not recognised",
+    "unsure": "of which recognised with doubt (OCR < 1.00)",
+    "distinct": "different cards (without duplicates)",
+    "with_duplicates": "cards you own more than once",
+    "status": "Status",
+    "no_status": "without status",
+    "money": "Money ({currency})",
+    "listed_value": "value of all listings",
+    "sold_total": "sold so far",
+    "to_ship": "of which still to ship",
+    "average": "average sale price",
+    "todo": "To do",
+    "no_set": "set not entered yet",
+    "no_condition": "condition not entered yet",
+    "no_price": "price not set yet",
+    "legend": "Legend",
+    "yellow": [
+      "Yellow cells in the inventory",
+      "yours to fill in"
+    ],
+    "grey": [
+      "Grey cells in the inventory",
+      "from the scanner or formulas - do not overwrite"
+    ],
+    "red": [
+      "Red OCR number",
+      "the name was recognised with doubt - take a quick look"
+    ]
+  },
+  "duplicates": {
+    "title": "Cards you own more than once",
+    "note": "Grouped by name, number and variant from the inventory, including your corrections. Every copy is an item of its own with its own condition and listing - the IDs tell you which.",
+    "ids": "Card IDs",
+    "none": "(no duplicates yet)"
+  }
+}

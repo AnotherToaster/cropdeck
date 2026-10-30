@@ -201,38 +201,100 @@ class Names(unittest.TestCase):
 
 
 class Tracker(unittest.TestCase):
-    def test_your_edits_survive_a_rerun(self):
-        from openpyxl import load_workbook
-
+    def setUp(self):
         tmp = Path(tempfile.mkdtemp())
-        sorted_dir, xlsx = tmp / "sorted", tmp / "t.xlsx"
-        sorted_dir.mkdir()
-        rows = [
-            {
-                "card": "0001",
-                "name": "Pikachu",
-                "name_en": "Pikachu",
-                "number": "25/102",
-                "confidence": "1.00",
-                "front": "0001_front.png",
-                "back": "0001_back.png",
-            }
-        ]
-        with open(sorted_dir / "cards.csv", "w", newline="", encoding="utf-8") as fh:
+        self.sorted, self.xlsx = tmp / "sorted", tmp / "t.xlsx"
+        self.sorted.mkdir()
+        self.cards(
+            [
+                {"card": "0001", "name": "Pikachu", "name_en": "Pikachu", "number": "25/102"},
+                {"card": "0002", "name": "Pikachv", "name_en": "", "number": ""},  # OCR slip
+            ]
+        )
+
+    def cards(self, rows):
+        for r in rows:
+            r.update(
+                confidence="1.00", front=f"{r['card']}_front.png", back=f"{r['card']}_back.png"
+            )
+        with open(self.sorted / "cards.csv", "w", newline="", encoding="utf-8") as fh:
             w = csv.DictWriter(fh, fieldnames=list(rows[0]))
             w.writeheader()
             w.writerows(rows)
-        self.assertEqual(run("track", sorted_dir, "-o", xlsx).returncode, 0)
-        wb = load_workbook(xlsx)
-        ws = wb["Inventar"]
+
+    def track(self, *extra):
+        r = run("track", self.sorted, "-o", self.xlsx, *extra)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        return r
+
+    def book(self):
+        from openpyxl import load_workbook
+
+        return load_workbook(self.xlsx)
+
+    def test_your_edits_survive_a_rerun(self):
+        self.track()
+        wb = self.book()
+        ws = wb["Inventory"]
         head = {c.value: c.column for c in ws[1]}
-        ws.cell(row=2, column=head["Käufer / Notiz"], value="my note")  # a column that is yours
-        ws.cell(row=2, column=head["Status"], value="Verkauft")  # one the tracker pre-fills
-        wb.save(xlsx)
-        self.assertEqual(run("track", sorted_dir, "-o", xlsx).returncode, 0)
-        ws = load_workbook(xlsx)["Inventar"]
-        self.assertEqual(ws.cell(row=2, column=head["Käufer / Notiz"]).value, "my note")
-        self.assertEqual(ws.cell(row=2, column=head["Status"]).value, "Verkauft")
+        ws.cell(row=2, column=head["Buyer / note"], value="my note")  # a column that is yours
+        ws.cell(row=2, column=head["Status"], value="Sold")  # one the tracker pre-fills
+        wb.save(self.xlsx)
+        self.track()
+        ws = self.book()["Inventory"]
+        self.assertEqual(ws.cell(row=2, column=head["Buyer / note"]).value, "my note")
+        self.assertEqual(ws.cell(row=2, column=head["Status"]).value, "Sold")
+
+    def test_a_box_size_once_set_is_kept(self):
+        self.track("--box-size", "50")
+        self.track()  # no --box-size: the workbook's own setting stays
+        self.assertEqual(self.book()["Lists"]["B2"].value, 50)
+
+    def test_duplicates_come_from_your_corrections_in_the_inventory(self):
+        self.track()
+        wb = self.book()
+        ws = wb["Inventory"]
+        head = {c.value: c.column for c in ws[1]}
+        ws.cell(row=3, column=head["Name"], value="Pikachu")  # you fix the OCR slip ...
+        ws.cell(row=3, column=head["Number"], value="25/102")  # ... and it is a second copy
+        wb.save(self.xlsx)
+        r = self.track()
+        self.assertIn("1 card(s) you own more than once", r.stdout)
+        values = [c.value for row in self.book()["Duplicates"].iter_rows() for c in row]
+        self.assertIn("0001, 0002", values)
+
+    def test_a_new_workbook_is_english_in_euro_by_default(self):
+        self.track()
+        wb = self.book()
+        self.assertEqual(wb.sheetnames, ["Overview", "Inventory", "Duplicates", "Lists"])
+        self.assertIn("Price EUR", [c.value for c in wb["Inventory"][1]])
+        self.assertIn("Cardmarket", [c.value for c in wb["Lists"]["H"]])
+
+    def test_a_german_workbook_stays_german_in_its_currency(self):
+        self.track("--lang", "de", "--currency", "CHF")
+        wb = self.book()
+        self.assertEqual(wb.sheetnames, ["Übersicht", "Inventar", "Dubletten", "Listen"])
+        self.assertIn("Preis CHF", [c.value for c in wb["Inventar"][1]])
+        self.assertIn("Ricardo", [c.value for c in wb["Listen"]["H"]])
+        # an older workbook has no stored settings: language and currency are read from it
+        wb["Listen"]["B3"], wb["Listen"]["B4"] = None, None
+        wb.save(self.xlsx)
+        r = self.track("--lang", "en")
+        self.assertIn("stays so - en ignored", r.stdout)
+        wb = self.book()
+        self.assertEqual(wb.sheetnames, ["Übersicht", "Inventar", "Dubletten", "Listen"])
+        self.assertIn("Preis CHF", [c.value for c in wb["Inventar"][1]])
+
+    def test_every_language_has_exactly_the_texts_english_has(self):
+        from cropdeck import texts
+
+        def shape(d):
+            return {k: shape(v) if isinstance(v, dict) else type(v) for k, v in d.items()}
+
+        for code in texts.languages():
+            self.assertEqual(shape(texts.language(code)), shape(texts.language("en")), code)
+        for code, cur in texts.currencies().items():
+            self.assertTrue(cur["platforms"], code)
 
 
 if __name__ == "__main__":

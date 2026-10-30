@@ -17,7 +17,7 @@ scans/                       cropdeck split              sorted/
                               0001_Charmander_9-25_front.png / _back.png
                                     │
                                     ▼
-                              cropdeck track  ── Karten-Tracker.xlsx (optional)
+                              cropdeck track  ── card-tracker.xlsx (optional)
 ```
 
 Dependencies: Python 3, OpenCV, NumPy; pytesseract and the Tesseract engine for naming; openpyxl
@@ -181,8 +181,8 @@ cropdeck split [input ...] [-o OUT]
 cropdeck name FOLDER
   --dry-run  --lang printed|en  --min-ratio F  --timeout SEC  --no-number
 
-cropdeck track [SORTED_DIR] [-o XLSX]  --box-size N
+cropdeck track [SORTED_DIR] [-o XLSX]  --lang en|de  --currency EUR|USD|GBP|CHF  --box-size N
 ```
 
 Defaults for the folders: `$CROPDECK_HOME/scans`, `$CROPDECK_HOME/sorted` and
-`$CROPDECK_HOME/Karten-Tracker.xlsx`, or the current directory when `CROPDECK_HOME` is not set.
+`$CROPDECK_HOME/card-tracker.xlsx`, or the current directory when `CROPDECK_HOME` is not set.

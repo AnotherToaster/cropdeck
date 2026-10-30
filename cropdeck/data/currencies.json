@@ -1,0 +1,6 @@
+{
+  "EUR": { "platforms": ["Cardmarket", "eBay"] },
+  "USD": { "platforms": ["TCGplayer", "eBay"] },
+  "GBP": { "platforms": ["Cardmarket", "eBay"] },
+  "CHF": { "platforms": ["Cardmarket", "Ricardo", "tutti.ch", "swiss-tcg-market.ch", "eBay"] }
+}
