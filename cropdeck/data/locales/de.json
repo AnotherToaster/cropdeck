@@ -1,0 +1,181 @@
+{
+  "name": "Deutsch",
+  "date_format": "DD.MM.YYYY",
+  "sheets": {
+    "overview": "Übersicht",
+    "inventory": "Inventar",
+    "duplicates": "Dubletten",
+    "lists": "Listen"
+  },
+  "columns": {
+    "id": [
+      "ID",
+      "Kartennummer - verbindet Vorder- und Rückseite"
+    ],
+    "name": [
+      "Name",
+      "wie auf der Karte gedruckt (OCR)"
+    ],
+    "name_en": [
+      "Name EN",
+      "englischer Name"
+    ],
+    "set": [
+      "Set",
+      "z.B. Jungle, Celebrations, Fusion Strike"
+    ],
+    "number": [
+      "Nummer",
+      "Sammlernummer, z.B. 9/25"
+    ],
+    "language": [
+      "Sprache",
+      "Sprache der Karte: DE / EN / FR / IT / ES / JP ..."
+    ],
+    "variant": [
+      "Variante",
+      "Normal, Reverse Holo, Holo, 1st Edition, Promo, Graded"
+    ],
+    "condition": [
+      "Zustand",
+      "Cardmarket-Skala: M NM EX GD LP PL PO"
+    ],
+    "grading": [
+      "Grading",
+      "leer, oder z.B. PSA 9 / BGS 9.5 + Zertifikatsnummer"
+    ],
+    "copy": [
+      "Kopie",
+      "die wievielte Kopie dieser Karte (Formel)"
+    ],
+    "count": [
+      "Anzahl",
+      "wie viele du davon hast (Formel)"
+    ],
+    "location": [
+      "Lagerort",
+      "physischer Platz, aus der ID berechnet (Formel)"
+    ],
+    "status": [
+      "Status",
+      "Gescannt / Bereit / Online / Reserviert / Verkauft / Versendet / Behalten"
+    ],
+    "platform": [
+      "Plattform",
+      "wo die Karte inseriert ist"
+    ],
+    "listing_url": [
+      "Listing-URL",
+      "Link zum Inserat"
+    ],
+    "price": [
+      "Preis {currency}",
+      "Verkaufspreis, den du verlangst"
+    ],
+    "sold_price": [
+      "Verkauft {currency}",
+      "was du tatsächlich bekommen hast"
+    ],
+    "sold_on": [
+      "Verkauft am",
+      "Datum"
+    ],
+    "buyer_note": [
+      "Käufer / Notiz",
+      ""
+    ],
+    "image_front": [
+      "Bild vorne",
+      "Dateiname der Vorderseite"
+    ],
+    "image_back": [
+      "Bild hinten",
+      "Dateiname der Rückseite"
+    ],
+    "ocr": [
+      "OCR",
+      "Erkennungssicherheit; alles unter 1.00 kurz prüfen"
+    ]
+  },
+  "statuses": {
+    "scanned": "Gescannt",
+    "ready": "Bereit",
+    "listed": "Online",
+    "reserved": "Reserviert",
+    "sold": "Verkauft",
+    "shipped": "Versendet",
+    "keeping": "Behalten"
+  },
+  "variants": {
+    "normal": "Normal",
+    "reverse_holo": "Reverse Holo",
+    "holo": "Holo",
+    "first_edition": "1st Edition",
+    "shadowless": "Shadowless",
+    "promo": "Promo",
+    "graded": "Graded"
+  },
+  "conditions": {
+    "title": "Zustand (Cardmarket-Skala)",
+    "M": "Mint - perfekt, kein Spielraum für Abnutzung",
+    "NM": "Near Mint - minimale Fehler; Clouding schliesst NM aus",
+    "EX": "Excellent - sichtbar benutzt, aber gepflegt",
+    "GD": "Good - deutliche Abnutzung",
+    "LP": "Light Played - starke Gebrauchsspuren",
+    "PL": "Played - schwer abgenutzt, Wasserschaden, Wellen",
+    "PO": "Poor - Pflicht bei altered, geschwärzten Rändern, Stempeln, Tinte",
+    "source": "Quelle: help.cardmarket.com/en/CardCondition"
+  },
+  "location": {
+    "box": "Box ",
+    "slot": " / Platz "
+  },
+  "lists": {
+    "setting": "Einstellung",
+    "value": "Wert",
+    "box_size": "Karten pro Box (für Lagerort)",
+    "currency": "Währung",
+    "language": "Sprache dieser Arbeitsmappe",
+    "note": "Der Lagerort im Inventar richtet sich nach der Boxgrösse; Sprache und Währung bleiben, wie die Arbeitsmappe angelegt wurde."
+  },
+  "overview": {
+    "title": "Karten - Übersicht",
+    "note": "Wird bei jedem Lauf von cropdeck track neu berechnet. Nicht hier tippen - alles ins Inventar.",
+    "stock": "Bestand",
+    "total": "Karten total",
+    "unrecognised": "davon nicht erkannt",
+    "unsure": "davon unsicher erkannt (OCR < 1.00)",
+    "distinct": "verschiedene Karten (ohne Dubletten)",
+    "with_duplicates": "Karten mit Dubletten",
+    "status": "Status",
+    "no_status": "ohne Status",
+    "money": "Geld ({currency})",
+    "listed_value": "Wert aller Inserate online",
+    "sold_total": "bereits verkauft",
+    "to_ship": "davon noch zu versenden",
+    "average": "Ø Verkaufspreis",
+    "todo": "Zu tun",
+    "no_set": "Set noch nicht eingetragen",
+    "no_condition": "Zustand noch nicht eingetragen",
+    "no_price": "Preis noch nicht gesetzt",
+    "legend": "Legende",
+    "yellow": [
+      "Gelbe Felder im Inventar",
+      "die füllst du aus"
+    ],
+    "grey": [
+      "Graue Felder im Inventar",
+      "kommen vom Scanner / sind Formeln - nicht überschreiben"
+    ],
+    "red": [
+      "Rote OCR-Zahl",
+      "Name wurde unsicher erkannt - kurz nachschauen"
+    ]
+  },
+  "duplicates": {
+    "title": "Karten, von denen du mehr als eine hast",
+    "note": "Nach Name, Nummer und Variante aus dem Inventar gruppiert, inklusive deiner Korrekturen. Jede Kopie ist ein eigenes Objekt mit eigenem Zustand und eigenem Inserat - die IDs sagen dir welche.",
+    "ids": "Karten-IDs",
+    "none": "(noch keine Dubletten)"
+  }
+}

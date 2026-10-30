@@ -21,7 +21,7 @@ scan 6 cards  →  flip each in place  →  scan the backs  →  one command
                                                             │
              ┌──────────────────────────────────────────────┼──────────────────────┐
              ▼                                              ▼                      ▼
-  0001_Snivy_5-25_front.png                            cards.csv          Karten-Tracker.xlsx
+  0001_Snivy_5-25_front.png                            cards.csv          card-tracker.xlsx
   0001_Snivy_5-25_back.png                       (machine-readable)       (the sheet you edit)
 ```
 
@@ -65,7 +65,7 @@ The steps can also be run on their own, with every option:
 ```bash
 cropdeck split mycards/scans -o mycards/sorted --pair --expect 8   # find, crop, pair
 cropdeck name  mycards/sorted                                     # read names, rename
-cropdeck track mycards/sorted -o mycards/Karten-Tracker.xlsx      # update the sheet
+cropdeck track mycards/sorted -o mycards/card-tracker.xlsx        # update the sheet
 cropdeck status mycards                                           # how far along, changes nothing
 ```
 
@@ -77,10 +77,10 @@ to, and nothing you typed into the spreadsheet is ever overwritten.
 | Output | What |
 |---|---|
 | `NNNN_<name>_<number>_front.png` / `_back.png` | the cards; the same number = the same physical card |
-| `cards.csv` | one row per card: name, English name, collector number, OCR confidence, file names, plus empty `set`, `condition`, `price_chf`, `notes` |
+| `cards.csv` | one row per card: name, English name, collector number, OCR confidence, file names, plus empty `set`, `condition`, `price`, `notes` |
 | `_pairs/<scan>_pairs.jpg` | a proof sheet per tray: every front beside the back it was matched with |
 | `_debug/` | with `--debug`: what was detected on each scan |
-| `Karten-Tracker.xlsx` | inventory, duplicates and a summary, built from `cards.csv` (German sheet names) |
+| `card-tracker.xlsx` | inventory, duplicates and a summary, built from `cards.csv` - English or German, in EUR, USD, GBP or CHF |
 
 ## Documentation
 

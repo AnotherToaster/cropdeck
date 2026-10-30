@@ -23,7 +23,7 @@ BASE_FIELDS = [
     "set",
     "number",
     "condition",
-    "price_chf",
+    "price",
     "notes",
 ]
 

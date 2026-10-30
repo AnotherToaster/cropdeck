@@ -13,7 +13,7 @@ from pathlib import Path
 
 SCANS = "scans"
 SORTED = "sorted"
-TRACKER = "Karten-Tracker.xlsx"
+TRACKER = "card-tracker.xlsx"
 
 
 def home() -> Path:

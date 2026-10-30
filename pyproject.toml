@@ -48,7 +48,7 @@ include = ["cropdeck*"]
 version = {attr = "cropdeck.__version__"}
 
 [tool.setuptools.package-data]
-cropdeck = ["data/*.json"]
+cropdeck = ["data/*.json", "data/locales/*.json"]
 
 [tool.ruff]
 line-length = 100
