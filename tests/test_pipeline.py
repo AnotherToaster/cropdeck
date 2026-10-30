@@ -4,6 +4,7 @@ No real card art is used anywhere: tests/synth.py draws abstract cards of true s
 """
 
 import csv
+import os
 import shutil
 import subprocess
 import sys
@@ -206,6 +207,26 @@ class Names(unittest.TestCase):
         self.assertEqual(
             after[0]["scan_front"], rows[0]["scan_front"]
         )  # split's columns survive too
+
+    def test_without_tesseract_naming_says_what_to_install(self):
+        home = Path(tempfile.mkdtemp())
+        (home / "sorted").mkdir()
+        env = {
+            **os.environ,
+            "PATH": str(home),
+            "ProgramFiles": str(home),
+            "LOCALAPPDATA": str(home),
+        }
+        r = subprocess.run(
+            [sys.executable, "-m", "cropdeck", "name", str(home / "sorted")],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("Tesseract engine is not installed", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
 
     def test_renamed_files_are_not_matched_again(self):
         self.assertTrue(cardname.FRONT_RE.match("card_0007_front"))
