@@ -25,7 +25,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import shutil
 import sys
 import time
 import unicodedata
@@ -45,6 +47,17 @@ except ImportError:
     raise
 
 NAMES_FILE = Path(__file__).parent / "data" / "pokemon_names.json"
+# Where the Windows installer puts Tesseract; it does not add itself to PATH by default.
+# Installed for all users it lands in Program Files, for one user under LOCALAPPDATA\Programs.
+WINDOWS_TESSERACT = [
+    Path(os.environ.get("ProgramFiles", "C:\\Program Files"), "Tesseract-OCR", "tesseract.exe"),
+    Path(os.environ.get("LOCALAPPDATA", "C:\\"), "Programs", "Tesseract-OCR", "tesseract.exe"),
+]
+TESSERACT_HELP = (
+    "! The Tesseract engine is not installed or not on PATH - names cannot be read.\n"
+    "  Windows: https://github.com/UB-Mannheim/tesseract/wiki (the default folder is found)\n"
+    "  Linux:   sudo apt install tesseract-ocr      macOS: brew install tesseract"
+)
 # Only ever matches cropdeck split's raw output (card_0007_front). Once a file has been
 # renamed to 0007_Snivy_5-25_front it no longer matches, so re-running this script
 # leaves already-named cards alone instead of chewing them up a second time.
@@ -228,10 +241,23 @@ def add_arguments(p: argparse.ArgumentParser):
     p.add_argument("--dry-run", action="store_true", help="print what would happen, rename nothing")
 
 
+def find_tesseract() -> bool:
+    """Point pytesseract at the Tesseract engine: PATH first, then the Windows install folder."""
+    if shutil.which("tesseract"):
+        return True
+    found = next((p for p in WINDOWS_TESSERACT if p.is_file()), None)
+    if found:
+        pytesseract.pytesseract.tesseract_cmd = str(found)
+    return found is not None
+
+
 def run(args) -> int:
     folder = Path(args.folder).expanduser()
     if not folder.is_dir():
         print(f"! not a folder: {folder}", file=sys.stderr)
+        return 1
+    if not find_tesseract():
+        print(TESSERACT_HELP, file=sys.stderr)
         return 1
 
     index = load_names()
