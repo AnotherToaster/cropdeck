@@ -63,7 +63,7 @@ Cropping and pairing need only OpenCV and NumPy. `--names` needs the Tesseract e
 The steps can also be run on their own, with every option:
 
 ```bash
-cropdeck split mycards/scans -o mycards/sorted --pair --expect 6   # find, crop, pair
+cropdeck split mycards/scans -o mycards/sorted --pair --expect 8   # find, crop, pair
 cropdeck name  mycards/sorted                                     # read names, rename
 cropdeck track mycards/sorted -o mycards/Karten-Tracker.xlsx      # update the sheet
 cropdeck status mycards                                           # how far along, changes nothing

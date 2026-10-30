@@ -37,6 +37,8 @@ HUES = [
     (155, 105, 190),
     (222, 160, 52),
     (70, 90, 160),
+    (196, 82, 128),
+    (128, 136, 62),
 ]
 
 THEMES = {  # background, panel, text, muted text, arrow
@@ -115,22 +117,22 @@ def back() -> np.ndarray:
 def cut_tray() -> tuple[np.ndarray, np.ndarray, list[tuple[np.ndarray, np.ndarray]]]:
     """A synthetic tray, run through the real split step. Returns both scans and the pairs."""
     fronts, backs, _ = synth.tray(
-        seed=7, layout="2x3-sideways", front=front, back=back(), marked=False
+        seed=7, layout="2x4-sideways", front=front, back=back(), marked=False
     )
     with tempfile.TemporaryDirectory() as tmp:
         scans, out = Path(tmp, "scans"), Path(tmp, "sorted")
         scans.mkdir()
         cv2.imwrite(str(scans / "scan_0001.png"), fronts)
         cv2.imwrite(str(scans / "scan_0002.png"), backs)
-        argv = ["split", str(scans), "-o", str(out), "--pair", "--expect", "6"]
+        argv = ["split", str(scans), "-o", str(out), "--pair", "--expect", "8"]
         if cropdeck(argv + ["--dpi", str(synth.DPI), "--no-sheet"]) != 0:
             raise SystemExit("cropdeck split failed on the demo tray")
         pairs = [
             (cv2.imread(str(f)), cv2.imread(str(f).replace("_front", "_back")))
             for f in sorted(out.glob("card_*_front.png"))
         ]
-    if len(pairs) != 6:
-        raise SystemExit(f"expected 6 pairs, got {len(pairs)}")
+    if len(pairs) != 8:
+        raise SystemExit(f"expected 8 pairs, got {len(pairs)}")
     return fronts, backs, pairs
 
 
@@ -149,7 +151,7 @@ def compose(fronts, backs, pairs, theme: str) -> Image.Image:
     card_w = cards[0][0].width
     pair_w = 2 * card_w + 6
     left_w = 2 * scans[0].width + gap
-    right_w = 3 * pair_w + 2 * 2 * gap
+    right_w = 4 * pair_w + 3 * 2 * gap
     arrow_w = 100
     W = pad + left_w + arrow_w + right_w + pad
     H = pad + 44 + scan_h + 34 + pad
@@ -181,8 +183,8 @@ def compose(fronts, backs, pairs, theme: str) -> Image.Image:
     )
     top = pad + 44 + (scan_h - 2 * card_h - 3 * gap) // 2
     for k, (f, b) in enumerate(cards):
-        cx = rx + (k % 3) * (pair_w + 2 * gap)
-        cy = top + (k // 3) * (card_h + 2 * gap)
+        cx = rx + (k % 4) * (pair_w + 2 * gap)
+        cy = top + (k // 4) * (card_h + 2 * gap)
         img.paste(f, (cx, cy))
         img.paste(b, (cx + card_w + 6, cy))
         d.text((cx, cy + card_h + 2), f"{k + 1:04d}", font=small, fill=muted)
