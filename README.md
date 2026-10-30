@@ -60,6 +60,9 @@ Cropping and pairing need only OpenCV and NumPy. `--names` needs the Tesseract e
 <https://github.com/UB-Mannheim/tesseract/wiki>); `--tracker` needs openpyxl, both included in
 `[all]`. Without a folder argument, `cropdeck run` uses `$CROPDECK_HOME` or the current directory.
 
+**On Windows:** step by step in [docs/install-windows.md](docs/install-windows.md) - Python,
+cropdeck and Tesseract, tested on Windows with Python 3.14.
+
 The steps can also be run on their own, with every option:
 
 ```bash
@@ -86,6 +89,7 @@ to, and nothing you typed into the spreadsheet is ever overwritten.
 
 | | |
 |---|---|
+| [docs/install-windows.md](docs/install-windows.md) | installing on Windows, step by step |
 | [docs/scanning.md](docs/scanning.md) | how to scan: settings, layout, the daily loop, troubleshooting |
 | [docs/how-it-works.md](docs/how-it-works.md) | every step of the pipeline, why it is built that way, and its limits |
 | [docs/tracker.md](docs/tracker.md) | the spreadsheet: sheets, columns, what is yours and what is automatic |
@@ -122,4 +126,4 @@ Security problems go privately to cropdeck@dr-dev.ch ([SECURITY.md](SECURITY.md)
 
 ## Licence
 
-[MIT](LICENSE) © 2026 dr-dev
+[MIT](LICENSE) © 2026 Dominik Röttger · [dr-dev.ch](https://dr-dev.ch)
