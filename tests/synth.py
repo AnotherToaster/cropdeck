@@ -59,22 +59,23 @@ def _slots(layout: str):
     """
     Card centres and angles on an A4 platen.
 
-    "2x3": 2 columns x 3 rows of upright cards, ~1 cm apart.
+    "2x3": 2 columns x 3 rows of upright cards, 12 mm apart across and 8 mm down.
     "4x2": 4 cards along the long side of the glass and 2 across, every card lying sideways
            (turned 90 degrees counter-clockwise) - the layout that fits 8 cards on A4.
     Every card also gets a small tilt of its own.
     """
     if layout == "2x3":
         cols, rows, w, h, base = 2, 3, CARD_W, CARD_H, 0.0
-        gap_x = gap_y = round(12 * MM)
-        x0, y0 = (A4_W - cols * w - gap_x) // 2, round(15 * MM)
+        gap_x, gap_y = round(12 * MM), round(8 * MM)
     elif layout == "4x2":
         cols, rows, w, h, base = 2, 4, CARD_H, CARD_W, 90.0
         gap_x, gap_y = round(10 * MM), round(8 * MM)
-        x0 = (A4_W - cols * w - (cols - 1) * gap_x) // 2
-        y0 = (A4_H - rows * h - (rows - 1) * gap_y) // 2
     else:
         raise ValueError(f"unknown layout {layout!r}")
+    # centred on the glass; both layouts leave every card fully on the platen
+    x0 = (A4_W - cols * w - (cols - 1) * gap_x) // 2
+    y0 = (A4_H - rows * h - (rows - 1) * gap_y) // 2
+    assert x0 > 0 and y0 > 0, f"{layout} does not fit on A4"
     for r in range(rows):
         for c in range(cols):
             yield (
@@ -95,16 +96,30 @@ def _place(platen: np.ndarray, card: np.ndarray, cx: int, cy: int, angle: float)
     platen[mask > 127] = warped[mask > 127]
 
 
-def tray(seed: int = 0, backing=(245, 245, 245), layout: str = "2x3"):
-    """(fronts_scan, backs_scan, slot_colours): one tray of cards, fronts and backs."""
+def tray(
+    seed: int = 0,
+    backing=(245, 245, 245),
+    layout: str = "2x3",
+    front=None,
+    back: np.ndarray | None = None,
+    marked: bool = True,
+):
+    """
+    (fronts_scan, backs_scan, slot_colours): one tray of cards, fronts and backs.
+
+    front(i, rng) and back replace the abstract test designs (tools/demo_image.py draws its
+    own); marked=False leaves off the corner marks the tests use to check pairing.
+    """
     rng = np.random.default_rng(seed)
     fronts = np.full((A4_H, A4_W, 3), backing, np.uint8)
     backs = fronts.copy()
-    back = _back()
+    front = front or _front
+    back = _back() if back is None else back
+    mark = _mark if marked else (lambda img, i: img)
     for i, (cx, cy, a) in enumerate(_slots(layout)):
         tilt = a - round(a / 90) * 90
-        _place(fronts, _mark(_front(i, rng), i), cx, cy, a)
-        _place(backs, _mark(back, i), cx, cy, a - tilt * 1.5)  # flipped in place, re-tilted
+        _place(fronts, mark(front(i, rng), i), cx, cy, a)
+        _place(backs, mark(back, i), cx, cy, a - tilt * 1.5)  # flipped in place, re-tilted
     noise = rng.normal(0, 2, fronts.shape)
     return (
         np.clip(fronts + noise, 0, 255).astype(np.uint8),
