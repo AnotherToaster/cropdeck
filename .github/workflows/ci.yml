@@ -21,11 +21,12 @@ jobs:
           args: format --check
 
   test:
+    # The basics for now: one Linux job. Windows, macOS and older Pythons come back into the
+    # matrix once cropdeck has users on them.
     strategy:
-      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python: ["3.10", "3.11", "3.12", "3.13"]
+        include:
+          - { os: ubuntu-latest, python: "3.13" }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
