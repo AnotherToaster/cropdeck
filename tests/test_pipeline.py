@@ -129,12 +129,13 @@ class Command(unittest.TestCase):
 
     def test_run_crops_and_pairs_a_folder_and_nothing_more(self):
         home = Path(tempfile.mkdtemp())
-        f, b, _ = synth.tray(0)
+        f, b, _ = synth.tray(0, layout="2x4-sideways")  # the default: 8 cards, no --expect
         write_trays(home / "scans", [(f, b)])
         r = run("run", home, "--dpi", synth.DPI)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        self.assertEqual(len(list((home / "sorted").glob("card_*_front.png"))), 6)
-        self.assertEqual(len(list((home / "sorted").glob("card_*_back.png"))), 6)
+        self.assertNotIn("expected", r.stdout)
+        self.assertEqual(len(list((home / "sorted").glob("card_*_front.png"))), 8)
+        self.assertEqual(len(list((home / "sorted").glob("card_*_back.png"))), 8)
         self.assertFalse(list(home.glob("*.xlsx")))  # tracker only with --tracker
 
     def test_status_reports_without_processing(self):
@@ -173,7 +174,7 @@ class Names(unittest.TestCase):
         home = Path(tempfile.mkdtemp())
         f, b, _ = synth.tray(0)
         write_trays(home / "scans", [(f, b)])
-        self.assertEqual(run("run", home, "--dpi", synth.DPI).returncode, 0)
+        self.assertEqual(run("run", home, "--expect", 6, "--dpi", synth.DPI).returncode, 0)
         csv_path = home / "sorted" / "cards.csv"
         with open(csv_path, newline="", encoding="utf-8-sig") as fh:
             rows = list(csv.DictReader(fh))

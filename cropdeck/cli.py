@@ -55,7 +55,12 @@ def _parser() -> argparse.ArgumentParser:
         default=None,
         help="folder holding scans/ [default: $CROPDECK_HOME or the current directory]",
     )
-    r.add_argument("--expect", type=int, default=6, help="cards per scan (default 6)")
+    r.add_argument(
+        "--expect",
+        type=int,
+        default=8,
+        help="cards per scan (default 8: two across, four down, lying sideways)",
+    )
     r.add_argument("--dpi", type=float, default=None, help="scan resolution if not A4-detectable")
     r.add_argument("--names", action="store_true", help="also read names and numbers (OCR)")
     r.add_argument("--tracker", action="store_true", help="also update the tracker workbook")

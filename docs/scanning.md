@@ -22,14 +22,15 @@ have already cut (`sorted/.cardsplit-state.json`), so finished scans are simply 
 
 ## Layout
 
-- 6 cards per scan, two across and three down, either standing upright or lying sideways — sideways
-  leaves far more room between the rows. 3 × 3 upright is faster (12 + 12 passes for 100 cards
-  instead of 17 + 17); tell the tools with `cropdeck run --expect 9`.
-- 8 cards: lying sideways, two across and four down (a fourth row under the sideways six). It
-  leaves about 34 mm across and 45 mm down on A4 to share between the gaps and edges. Use
-  `cropdeck run --expect 8`. Sideways cards are turned clockwise to stand up; lay them all the same
-  way, and if they come out upside down, turn them the other way round next time (or cut that tray
-  with `cropdeck split … --rotate 180`). Tested with synthetic trays in `tests/test_pipeline.py`.
+- **The standard: 8 cards lying sideways, two across and four down.** It leaves about 34 mm across
+  and 45 mm down on A4 to share between the gaps and edges, and `cropdeck run` expects it without
+  options. Sideways cards are turned clockwise to stand up; lay them all the same way, and if they
+  come out upside down, turn them the other way round next time (or cut that tray with
+  `cropdeck split … --rotate 180`).
+- Other layouts work too - tell the tools how many cards lie on the glass: 6 sideways or upright
+  (`--expect 6`), 3 × 3 upright (`--expect 9`). A count that differs from `--expect` is reported,
+  not refused; fronts and backs that differ are refused.
+- All of these are tested with synthetic trays in `tests/test_pipeline.py`.
 - Cards ~5–8 mm apart, ~1 cm from the platen edges. Tilt up to ~10° is corrected, sideways cards
   are stood upright, touching cards are cut apart.
 - **Backing:** the scanner's plain white lid is usually best — no dust, no creases. The tools
