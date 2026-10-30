@@ -37,9 +37,18 @@ A change in behaviour comes with a test, and the test must fail without the chan
 
 `docs/how-it-works.md` explains why each step is built the way it is.
 
-## Commits and pull requests
+## Branches, pull requests and releases
 
-- One change per commit, [Conventional Commits](https://www.conventionalcommits.org/):
-  `feat: …`, `fix: …`, `docs: …`, `refactor: …`, `test: …`, `chore: …`.
-- Keep `docs/` and `CHANGELOG.md` (under *Unreleased*) true with the change.
-- CI must be green: ruff and the tests on Linux, macOS and Windows.
+- Work on a branch (`feat/…`, `fix/…`, `docs/…`), one topic per branch, and open a pull request
+  against `main`. Nothing is pushed to `main` directly.
+- **The PR title is a [Conventional Commit](https://www.conventionalcommits.org/)** - `feat: …`,
+  `fix: …`, `docs: …`, `refactor: …`, `test: …`, `ci: …`, `chore: …` - and CI checks it. PRs are
+  squash-merged, so the title becomes the one commit on `main` and the line in the changelog.
+  A breaking change gets a `!` (`feat!: …`).
+- Commits inside a branch may be as small as you like; keep `docs/` true with the change.
+- CI must be green: ruff, and the tests on Linux, macOS and Windows with Python 3.10-3.13.
+
+**Releases are automatic.** [release-please](https://github.com/googleapis/release-please) keeps
+one open "chore(main): release x.y.z" PR with the next version and the changelog. Merging it tags
+the release, creates the GitHub release and attaches the built package. Do not edit
+`CHANGELOG.md` or the version in `cropdeck/__init__.py` by hand.
