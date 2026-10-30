@@ -1,3 +1,4 @@
-"""cropdeck: flatbed scans of trading cards -> cropped, paired front/back images."""
+"""cropdeck: true-scale scans of trading cards, front and back paired."""
 
-__version__ = "0.1.0"
+# Set by release-please on every release; do not edit by hand.
+__version__ = "0.0.0"  # x-release-please-version
