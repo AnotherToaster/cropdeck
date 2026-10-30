@@ -15,15 +15,14 @@ from __future__ import annotations
 
 import io
 import re
-import urllib.request
 from pathlib import Path
 
+from fonts import inter
 from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
 
 ASSETS = Path(__file__).resolve().parent.parent / "docs" / "assets"
-FONT_URL = "https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-700-normal.woff"
 TEXT_SIZE = 41.4  # font size in icon units: the lower-case letters sit level with the card
 TEXT_X, BASELINE = 72, 46
 
@@ -46,7 +45,7 @@ def outline(font: TTFont, text: str, x: float, baseline: float) -> tuple[str, fl
 
 
 def main():
-    font = TTFont(io.BytesIO(urllib.request.urlopen(FONT_URL, timeout=30).read()))
+    font = TTFont(io.BytesIO(inter(700)))
     icon = re.sub(r"^<svg[^>]*>|</svg>\s*$", "", (ASSETS / "icon.svg").read_text().strip())
     crop, x = outline(font, "crop", TEXT_X, BASELINE)
     deck, x = outline(font, "deck", x, BASELINE)
