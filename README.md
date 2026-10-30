@@ -5,125 +5,123 @@
   </picture>
 </h1>
 
-True-scale scans of trading cards (TCG), front and back paired. Turn flatbed scans into clean,
-correctly paired front/back images, optionally named by what is printed on the card and tracked
-in a spreadsheet.
+**True-scale scans of trading cards, front and back paired.** Lay eight cards on a flatbed
+scanner, scan them, flip each one where it lies, scan again - cropdeck cuts every card out
+upright and at its real size, and puts each front next to its own back.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/demo-dark.png">
-  <img alt="Two flatbed scans - six cards face up, then the same six flipped in place - and cropdeck's output: each card cut out upright, its front next to its own back." src="docs/assets/demo-light.png">
+  <img alt="Two flatbed scans - eight cards lying sideways, then the same eight flipped in place - and cropdeck's output: each card cut out upright, its front next to its own back." src="docs/assets/demo-light.png">
 </picture>
 
 <sub>Synthetic cards drawn by <code>tools/demo_image.py</code>; the right-hand side is real cropdeck output.</sub>
 
-```
-scan 6 cards  →  flip each in place  →  scan the backs  →  one command
-                                                            │
-             ┌──────────────────────────────────────────────┼──────────────────────┐
-             ▼                                              ▼                      ▼
-  0001_Snivy_5-25_front.png                            cards.csv          card-tracker.xlsx
-  0001_Snivy_5-25_back.png                       (machine-readable)       (the sheet you edit)
-```
+## Why
 
-Built for Pokémon cards (63 × 88 mm), in five languages (EN, DE, FR, ES, IT). Runs offline on
-Linux, WSL, macOS or Windows.
+A scanner's "auto crop" cuts trading cards short, trims holo cards whose edges reflect, and knows
+nothing about fronts and backs. Phone apps identify a card and throw the picture away. And with a
+stack of cards whose backs all look the same, a front saved with the wrong back is invisible - and
+cannot be undone.
 
-## Why it exists
+cropdeck uses the scanner for one thing only - an uncropped image of the whole glass - and does
+the rest where it can be checked:
 
-A scanner's own "auto crop" cuts trading cards off (business-card presets are 33 mm too short),
-trims holo cards whose edges reflect, and knows nothing about fronts and backs. With a hundred
-cards and identical backs, a mispaired front/back is invisible and cannot be undone. cropdeck uses
-the scanner for one thing only — an uncropped image of the whole glass — and does everything else
-where it can be checked.
+- **A front stays with its own back.** Pairing is by where each card lay on the glass, checked
+  several ways. If a tray does not add up, cropdeck refuses it and writes nothing, rather than
+  guess.
+- **True scale.** Cards are rotated and cut out, never stretched: 63 × 88 mm plus a 1 mm margin,
+  the same for every card.
+- **Offline, no account.** Your scans never leave your computer.
 
-What it guarantees, in order of importance:
+## Install
 
-1. **A front stays with its own back.** Pairing is by where the card lay on the glass, checked
-   four ways, and the run stops rather than guesses.
-2. **True scale.** Cards are rotated and cropped, never stretched: 63 × 88 mm plus a 1 mm margin,
-   identical for every card.
-3. **Cards identify themselves.** Name and collector number are read off the card and matched
-   against 2 755 printed names of all 1 025 species.
-
-## Quick start
+You need Python 3.10 or newer.
 
 ```bash
-pip install ".[all]"                 # from a clone of this repo; needs a recent pip (21.3+)
-
-mkdir -p mycards/scans               # put your scans here: odd = fronts, even = their backs
-cropdeck run mycards                 # crop and pair -> mycards/sorted
-cropdeck run mycards --names --tracker   # also read names and update the spreadsheet
+pip install "cropdeck[all] @ git+https://github.com/AnotherToaster/cropdeck"
 ```
 
-Cropping and pairing need only OpenCV and NumPy. `--names` needs the Tesseract engine
-(Linux `sudo apt install tesseract-ocr`, macOS `brew install tesseract`, Windows
-<https://github.com/UB-Mannheim/tesseract/wiki>); `--tracker` needs openpyxl, both included in
-`[all]`. Without a folder argument, `cropdeck run` uses `$CROPDECK_HOME` or the current directory.
+**On Windows**, follow [docs/install-windows.md](docs/install-windows.md) - Python, cropdeck and
+Tesseract step by step, tested on Windows.
 
-**On Windows:** step by step in [docs/install-windows.md](docs/install-windows.md) - Python,
-cropdeck and Tesseract, tested on Windows with Python 3.14.
+Cropping and pairing need nothing else. `[all]` adds the two optional steps below; reading names
+also needs the [Tesseract](https://github.com/tesseract-ocr/tesseract) engine
+(`sudo apt install tesseract-ocr`, `brew install tesseract`, or the Windows installer).
 
-The steps can also be run on their own, with every option:
+## Use
+
+1. Make a folder for your cards with a `scans` folder inside, and set the scanner to save there:
+   full glass, no auto-crop, 400 dpi ([docs/scanning.md](docs/scanning.md)).
+2. Lay **8 cards sideways** - two across, four down, all the same way round - and scan.
+3. **Flip each card where it lies** and scan again. Fronts and backs alternate: first scan fronts,
+   second scan backs, third scan the next tray's fronts, and so on.
+4. Run:
+
+   ```bash
+   cropdeck run mycards
+   ```
+
+```
+mycards/
+  scans/                         your scans - never changed
+  sorted/
+    card_0001_front.png          the same number = the same physical card
+    card_0001_back.png
+    ...
+    cards.csv                    one row per card
+    _pairs/                      one proof sheet per tray: every front beside its back
+```
+
+Run it again whenever you have scanned more: finished scans are skipped and numbering continues.
+Other layouts work too - `--expect 6` or `--expect 9` for six or nine cards per scan.
+
+### Optional
 
 ```bash
-cropdeck split mycards/scans -o mycards/sorted --pair --expect 8   # find, crop, pair
-cropdeck name  mycards/sorted                                     # read names, rename
-cropdeck track mycards/sorted -o mycards/card-tracker.xlsx        # update the sheet
-cropdeck status mycards                                           # how far along, changes nothing
+cropdeck run mycards --names      # read each card's name and number (Pokémon, by OCR)
+cropdeck run mycards --tracker    # keep a spreadsheet of the collection
 ```
 
-Re-run as often as you like: finished scans are skipped, numbering continues, the CSV is appended
-to, and nothing you typed into the spreadsheet is ever overwritten.
+- **`--names`** reads the name and collector number off each front and puts them into the file
+  names (`0001_Pikachu_25-102_front.png`). It knows the printed names of all Pokémon in English,
+  German, French, Spanish and Italian. Honest expectations: OCR is good on plain modern cards and
+  weaker on holos, V/GX/ex cards, older fonts and Japanese cards - check the result.
+- **`--tracker`** keeps `card-tracker.xlsx`: inventory, duplicates and a summary, in English or
+  German, in EUR, USD, GBP or CHF. Nothing you type into it is ever overwritten
+  ([docs/tracker.md](docs/tracker.md)).
 
-## What you get
+## Which cards
 
-| Output | What |
-|---|---|
-| `NNNN_<name>_<number>_front.png` / `_back.png` | the cards; the same number = the same physical card |
-| `cards.csv` | one row per card: name, English name, collector number, OCR confidence, file names, plus empty `set`, `condition`, `price`, `notes` |
-| `_pairs/<scan>_pairs.jpg` | a proof sheet per tray: every front beside the back it was matched with |
-| `_debug/` | with `--debug`: what was detected on each scan |
-| `card-tracker.xlsx` | inventory, duplicates and a summary, built from `cards.csv` - English or German, in EUR, USD, GBP or CHF |
+cropdeck is built for **standard-size cards (63 × 88 mm)** in any language. It has been tested on
+real scans of Pokémon cards; Magic: The Gathering and other games of the same size should work the
+same way, but have not been tried yet - reports welcome. Reading names (`--names`) works for Pokémon
+only. Yu-Gi-Oh cards are smaller (59 × 86 mm); support for other sizes is planned.
 
 ## Documentation
 
 | | |
 |---|---|
 | [docs/install-windows.md](docs/install-windows.md) | installing on Windows, step by step |
-| [docs/scanning.md](docs/scanning.md) | how to scan: settings, layout, the daily loop, troubleshooting |
-| [docs/how-it-works.md](docs/how-it-works.md) | every step of the pipeline, why it is built that way, and its limits |
-| [docs/tracker.md](docs/tracker.md) | the spreadsheet: sheets, columns, what is yours and what is automatic |
-
-## Tests
-
-```bash
-python3 -m unittest discover -s tests
-```
-
-The tests draw their own abstract cards of true size (`tests/synth.py`), so no card artwork is
-needed or included. They cover pairing by position, true scale, orientation, resume, the
-"is this really the backs?" guard, dark and light backing, name matching and the tracker keeping
-your edits.
-
-## Working on it with Claude Code
-
-The repo ships a subagent, [`.claude/agents/cropdeck.md`](.claude/agents/cropdeck.md), that knows
-the pipeline, its guarantees and its tests. Open the repo in Claude Code and ask for it by name
-("use the cropdeck agent to …"), or let Claude pick it for card-scanning work.
-
-## Data and names
-
-`cropdeck/data/pokemon_names.json` maps printed names to English names. It was generated from the
-[PokéAPI](https://pokeapi.co/) species data. Pokémon and all character names are trademarks of
-Nintendo, Creatures Inc. and GAME FREAK inc.; this project is not affiliated with them. No card
-images are included in this repository.
+| [docs/scanning.md](docs/scanning.md) | scanner settings, layouts, the daily loop, troubleshooting |
+| [docs/how-it-works.md](docs/how-it-works.md) | every step, why it is built that way, every command and option |
+| [docs/tracker.md](docs/tracker.md) | the spreadsheet: sheets, columns, languages and currencies |
 
 ## Contributing
 
 Bug reports and pull requests are welcome - see [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests
-and commit conventions, and [CHANGELOG.md](CHANGELOG.md) for what changed between versions.
-Security problems go privately to cropdeck@dr-dev.ch ([SECURITY.md](SECURITY.md)).
+and conventions, and [CHANGELOG.md](CHANGELOG.md) for what changed. The tests draw their own
+abstract cards, so no card artwork is ever needed. Security problems go privately to
+cropdeck@dr-dev.ch ([SECURITY.md](SECURITY.md)).
 
-## Licence
+The repo also ships a [Claude Code](https://claude.com/claude-code) subagent,
+[`.claude/agents/cropdeck.md`](.claude/agents/cropdeck.md), that knows the pipeline, its guarantees
+and its tests.
+
+## Licence and trademarks
 
 [MIT](LICENSE) © 2026 Dominik Röttger · [dr-dev.ch](https://dr-dev.ch)
+
+The Pokémon name list (`cropdeck/data/pokemon_names.json`) was generated from
+[PokéAPI](https://pokeapi.co/) data. Pokémon, Magic: The Gathering, Yu-Gi-Oh! and all card and
+character names are trademarks of their owners; cropdeck is not affiliated with or endorsed by
+them. No card images are included in this repository.
