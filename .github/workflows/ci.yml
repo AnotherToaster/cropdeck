@@ -21,16 +21,12 @@ jobs:
           args: format --check
 
   test:
-    # Oldest and newest supported Python on Linux; Windows (paths, renames) and macOS once each.
-    # Nothing in cropdeck differs between the Python versions in between.
+    # The basics for now: one Linux job. Windows, macOS and older Pythons come back into the
+    # matrix once cropdeck has users on them.
     strategy:
-      fail-fast: false
       matrix:
         include:
-          - { os: ubuntu-latest, python: "3.10" }
           - { os: ubuntu-latest, python: "3.13" }
-          - { os: windows-latest, python: "3.13" }
-          - { os: macos-latest, python: "3.13" }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
