@@ -1,0 +1,30 @@
+/* cropdeck UI styles. Every colour, size and space is a token from tokens.css - never a literal
+   value a token covers. Fonts are local files: the UI makes no request off this computer. */
+
+@font-face { font-family: Inter; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/Inter-400.woff2") format("woff2"); }
+@font-face { font-family: Inter; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/Inter-500.woff2") format("woff2"); }
+@font-face { font-family: Inter; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/Inter-600.woff2") format("woff2"); }
+@font-face { font-family: Inter; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/Inter-700.woff2") format("woff2"); }
+
+/* the browser's own controls and scrollbars follow the theme too */
+:root { color-scheme: light dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text);
+  background: var(--bg);
+}
+
+/* numbers line up in columns: card numbers, counts, prices, tables */
+.num, table, time, data { font-variant-numeric: tabular-nums; }
+
+:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+.page { max-width: var(--content-max); margin: 0 auto; padding: var(--space-32); }

@@ -1,0 +1,82 @@
+/* cropdeck UI tokens, v1 (from the design canvas, Oct 2026)
+   Copy this file as is. Never hard-code a colour, size or space in templates:
+   always var(--token). Light is the default; dark applies via the user's OS
+   setting or an explicit data-theme attribute on <html>. */
+
+:root {
+  /* brand */
+  --teal: #0F766E;          /* primary actions, "deck" in wordmark, selected */
+  --teal-soft: #E3F1EF;     /* selected row, current nav item */
+  --on-teal: #FFFFFF;       /* text on teal */
+  --amber: #F59E0B;         /* crop marks, progress fill: sparingly */
+  --amber-ink: #92400E;     /* attention text on light grounds */
+  --amber-soft: #FEF3C7;    /* working, needs review grounds */
+
+  /* states (new, defined in this design) */
+  --good: #15803D;          /* done, paired: dots and icons */
+  --good-ink: #166534;      /* done text */
+  --good-soft: #DCFCE7;     /* done badge ground */
+  --problem: #B42318;       /* stopped, refused */
+  --problem-soft: #FEE4E2;  /* stop banner ground */
+  --wait-bg: #F3F4F6;       /* waiting, skipped, scanned badge ground */
+
+  /* neutrals */
+  --text: #1F2937;
+  --muted: #6B7280;         /* secondary text, icons */
+  --line: #E2E5EA;          /* borders, dividers (new) */
+  --bg: #FFFFFF;
+  --panel: #F6F7F9;
+  --glass: #EEF1F4;         /* scanner glass drawing (new) */
+  --shadow: 0 1px 2px rgba(16, 24, 40, .10);
+
+  /* card-back placeholder pattern (only used where no real image exists yet) */
+  --back-a: #46525F;
+  --back-b: #3A4552;
+
+  /* type: Inter 400/500/600/700, numbers tabular */
+  --font: Inter, "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --fs-display: 30px;  --lh-display: 38px;   /* 700, page title / next step */
+  --fs-title: 22px;    --lh-title: 28px;     /* 600 */
+  --fs-heading: 17px;  --lh-heading: 24px;   /* 600, section heads */
+  --fs-body: 15px;     --lh-body: 22px;      /* 400 */
+  --fs-small: 13px;    --lh-small: 18px;     /* 400, meta, hints */
+  --fs-label: 12px;                          /* 600, field labels, badges */
+
+  /* space */
+  --space-4: 4px; --space-8: 8px; --space-12: 12px; --space-16: 16px;
+  --space-24: 24px; --space-32: 32px; --space-48: 48px;
+
+  /* shape */
+  --radius-thumb: 4px;
+  --radius-control: 8px;
+  --radius-panel: 12px;
+  --radius-pill: 999px;
+  --target: 44px;           /* minimum hit target */
+  --content-max: 1376px;    /* page container */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --teal: #5EB8AE; --teal-soft: #123331; --on-teal: #0D1117;
+    --amber: #F59E0B; --amber-ink: #FBBF24; --amber-soft: #2E2210;
+    --good: #4ADE80; --good-ink: #4ADE80; --good-soft: #12291B;
+    --problem: #FF8A7A; --problem-soft: #33181A; --wait-bg: #1F2630;
+    --text: #F3F4F6; --muted: #9CA3AF; --line: #2A313B;
+    --bg: #0D1117; --panel: #161B22; --glass: #11161D; --shadow: none;
+    --back-a: #3A4654; --back-b: #2F3A47;
+  }
+}
+:root[data-theme="dark"] {
+  --teal: #5EB8AE; --teal-soft: #123331; --on-teal: #0D1117;
+  --amber: #F59E0B; --amber-ink: #FBBF24; --amber-soft: #2E2210;
+  --good: #4ADE80; --good-ink: #4ADE80; --good-soft: #12291B;
+  --problem: #FF8A7A; --problem-soft: #33181A; --wait-bg: #1F2630;
+  --text: #F3F4F6; --muted: #9CA3AF; --line: #2A313B;
+  --bg: #0D1117; --panel: #161B22; --glass: #11161D; --shadow: none;
+  --back-a: #3A4654; --back-b: #2F3A47;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

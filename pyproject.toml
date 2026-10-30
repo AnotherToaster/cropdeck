@@ -37,7 +37,9 @@ Author = "https://dr-dev.ch"
 [project.optional-dependencies]
 names = ["pytesseract"]
 tracker = ["openpyxl"]
-all = ["pytesseract", "openpyxl"]
+ui = ["fastapi", "uvicorn", "jinja2"]
+all = ["pytesseract", "openpyxl", "fastapi", "uvicorn", "jinja2"]
+test = ["httpx"]
 dev = ["ruff", "pre-commit", "build"]
 
 [project.scripts]
@@ -50,7 +52,15 @@ include = ["cropdeck*"]
 version = {attr = "cropdeck.__version__"}
 
 [tool.setuptools.package-data]
-cropdeck = ["data/*.json", "data/locales/*.json"]
+cropdeck = [
+  "data/*.json",
+  "data/locales/*.json",
+  "data/locales/ui/*.json",
+  "ui/templates/*.html",
+  "ui/static/*.css",
+  "ui/static/fonts/*",
+  "ui/static/js/*",
+]
 
 [tool.ruff]
 line-length = 100
