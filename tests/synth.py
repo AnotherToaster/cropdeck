@@ -57,22 +57,25 @@ def _mark(img: np.ndarray, i: int) -> np.ndarray:
 
 def _slots(layout: str):
     """
-    Card centres and angles on an A4 platen.
+    Card centres and angles on an A4 platen, named columns x rows as the cards lie on the glass:
 
-    "2x3": 2 columns x 3 rows of upright cards, 12 mm apart across and 8 mm down.
-    "4x2": 4 cards along the long side of the glass and 2 across, every card lying sideways
-           (turned 90 degrees counter-clockwise) - the layout that fits 8 cards on A4.
+    "2x3-upright":  6 cards standing upright, 12 mm apart across and 8 mm down.
+    "2x3-sideways": 6 cards lying sideways (turned 90 degrees counter-clockwise), 20 mm between
+                    rows - how most people lay a tray.
+    "2x4-sideways": the same with a fourth row, 8 mm between rows - the most cards A4 takes.
     Every card also gets a small tilt of its own.
     """
-    if layout == "2x3":
-        cols, rows, w, h, base = 2, 3, CARD_W, CARD_H, 0.0
-        gap_x, gap_y = round(12 * MM), round(8 * MM)
-    elif layout == "4x2":
-        cols, rows, w, h, base = 2, 4, CARD_H, CARD_W, 90.0
-        gap_x, gap_y = round(10 * MM), round(8 * MM)
-    else:
-        raise ValueError(f"unknown layout {layout!r}")
-    # centred on the glass; both layouts leave every card fully on the platen
+    upright, sideways = (CARD_W, CARD_H, 0.0), (CARD_H, CARD_W, 90.0)
+    layouts = {  # cols, rows, (width, height, base angle), gap across, gap down - in mm
+        "2x3-upright": (2, 3, upright, 12, 8),
+        "2x3-sideways": (2, 3, sideways, 10, 20),
+        "2x4-sideways": (2, 4, sideways, 10, 8),
+    }
+    if layout not in layouts:
+        raise ValueError(f"unknown layout {layout!r}; one of {', '.join(layouts)}")
+    cols, rows, (w, h, base), gap_x, gap_y = layouts[layout]
+    gap_x, gap_y = round(gap_x * MM), round(gap_y * MM)
+    # centred on the glass; every layout leaves every card fully on the platen
     x0 = (A4_W - cols * w - (cols - 1) * gap_x) // 2
     y0 = (A4_H - rows * h - (rows - 1) * gap_y) // 2
     assert x0 > 0 and y0 > 0, f"{layout} does not fit on A4"
@@ -99,7 +102,7 @@ def _place(platen: np.ndarray, card: np.ndarray, cx: int, cy: int, angle: float)
 def tray(
     seed: int = 0,
     backing=(245, 245, 245),
-    layout: str = "2x3",
+    layout: str = "2x3-upright",
     front=None,
     back: np.ndarray | None = None,
     marked: bool = True,

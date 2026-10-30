@@ -73,14 +73,19 @@ class Split(unittest.TestCase):
         cols = [synth.mark_colour(cv2.imread(str(p))) for p in fronts]
         self.assertEqual(len({tuple(round(v / 40) for v in c) for c in cols}), 6)
 
-    def test_eight_sideways_cards_in_4x2_pair_and_stand_up_at_true_scale(self):
-        # 4 x 2 is the most cards A4 takes with room to spare: all of them lie sideways
-        f, b, _ = synth.tray(0, layout="4x2")
+    def test_six_sideways_cards_pair_and_stand_up_at_true_scale(self):
+        self.check_layout("2x3-sideways", 6)
+
+    def test_eight_sideways_cards_in_four_rows_pair_and_stand_up_at_true_scale(self):
+        self.check_layout("2x4-sideways", 8)  # the most cards A4 takes with room to spare
+
+    def check_layout(self, layout: str, n: int):
+        f, b, _ = synth.tray(0, layout=layout)
         write_trays(self.scans, [(f, b)])
-        r = run("split", self.scans, "-o", self.out, "--pair", "--expect", 8, "--dpi", synth.DPI)
+        r = run("split", self.scans, "-o", self.out, "--pair", "--expect", n, "--dpi", synth.DPI)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         fronts = sorted(self.out.glob("card_*_front.png"))
-        self.assertEqual(len(fronts), 8)
+        self.assertEqual(len(fronts), n)
         for fp in fronts:
             front, back = cv2.imread(str(fp)), cv2.imread(str(fp).replace("_front", "_back"))
             self.assertTrue(close(synth.mark_colour(front), synth.mark_colour(back)), fp.name)
@@ -88,7 +93,7 @@ class Split(unittest.TestCase):
             self.assertAlmostEqual(w, round(65 * synth.MM), delta=3)  # upright: narrow side across
             self.assertAlmostEqual(h, round(90 * synth.MM), delta=3)
         cols = [synth.mark_colour(cv2.imread(str(p))) for p in fronts]
-        self.assertEqual(len({tuple(round(v / 40) for v in c) for c in cols}), 8)
+        self.assertEqual(len({tuple(round(v / 40) for v in c) for c in cols}), n)
 
     def test_resume_cuts_nothing_twice_and_numbers_on(self):
         f, b, _ = synth.tray(0)
