@@ -1,7 +1,9 @@
 """Tests for the browser interface (cropdeck ui). Skipped where the ui extra is not installed."""
 
+import json
 import re
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -12,7 +14,7 @@ try:
     from fastapi.testclient import TestClient
 
     from cropdeck.ui import app as ui_app
-    from cropdeck.ui import i18n, server
+    from cropdeck.ui import i18n, server, session
 except (ImportError, RuntimeError):  # the ui extra (or httpx for tests) is not installed
     TestClient = None
 
@@ -100,6 +102,77 @@ class Foundations(unittest.TestCase):
         self.assertEqual(i18n.t("app.name"), "cropdeck")
         with self.assertRaises(KeyError):
             i18n.t("app.nothing_written_here")
+
+
+@unittest.skipIf(TestClient is None, 'needs pip install "cropdeck[ui]"')
+class Shell(unittest.TestCase):
+    def setUp(self):
+        self.folder = Path(tempfile.mkdtemp()) / "My Cards"
+        self.folder.mkdir()
+        self.config = self.folder.parent / "config" / "ui.json"
+        self.c = client(work=session.load(self.folder, self.config))
+
+    def test_every_screen_sits_in_the_shell_with_its_nav_item_current(self):
+        for path, item in (("/", "Scan"), ("/review", "Review"), ("/collection", "Collection")):
+            html = self.c.get(path).text
+            self.assertIn('class="site-header"', html, path)
+            current = re.search(r'<a href="[^"]*" aria-current="page">\s*([A-Za-z]+)', html)
+            self.assertEqual(current.group(1), item, path)
+        self.assertIn('aria-current="page"', self.c.get("/settings").text)
+
+    def test_the_header_shows_the_folder_and_the_layout(self):
+        html = self.c.get("/").text
+        self.assertIn("My Cards", html)
+        self.assertIn("8 sideways", html)  # the default layout
+        self.assertNotIn('class="pill', html)  # nothing to review yet: no count pill
+
+    def test_setup_has_the_reduced_header_and_no_nav(self):
+        html = self.c.get("/setup").text
+        self.assertIn("Runs on this computer only. No account, works offline.", html)
+        self.assertNotIn('<nav class="nav"', html)
+
+    def test_without_a_folder_the_first_stop_is_setup(self):
+        empty = Path(tempfile.mkdtemp()) / "ui.json"
+        c = client(work=session.load(None, empty))
+        r = c.get("/", follow_redirects=False)
+        self.assertEqual((r.status_code, r.headers["location"]), (303, "/setup"))
+
+    def test_the_folder_is_remembered_for_next_time(self):
+        self.assertEqual(session.load(None, self.config).folder, self.folder.resolve())
+
+    def test_the_app_window_files_are_served(self):
+        manifest = self.c.get("/manifest.webmanifest")
+        self.assertEqual(manifest.headers["content-type"], "application/manifest+json")
+        for icon in json.loads(manifest.text)["icons"]:
+            self.assertEqual(self.c.get(icon["src"]).status_code, 200, icon["src"])
+        sw = self.c.get("/sw.js").text
+        self.assertIn('"/offline"', sw)
+        self.assertNotIn('"/"', sw)  # app pages are never kept: nothing stale shown as current
+        self.assertIn("cropdeck is not running", self.c.get("/offline").text)
+
+
+class Layouts(unittest.TestCase):
+    def test_the_layouts_are_the_designs_table(self):
+        from cropdeck.layouts import DEFAULT, LAYOUTS
+
+        table = {  # docs/ui/HANDOFF.md, "Glass layouts" (mm)
+            "s8": (True, (12, 110), (12, 83, 154, 225)),
+            "s6": (True, (12, 110), (30, 117, 204)),
+            "u6": (False, (6, 73.5, 141), (30, 130)),
+            "u9": (False, (6, 73.5, 141), (6, 104, 202)),
+        }
+        got = {k: (v.sideways, v.xs, v.ys) for k, v in LAYOUTS.items()}
+        self.assertEqual(got, table)
+        self.assertEqual((DEFAULT, LAYOUTS[DEFAULT].count), ("s8", 8))
+        for lay in LAYOUTS.values():  # every card on the A4 glass
+            w, h = lay.card
+            self.assertLessEqual(max(lay.xs) + w, 210, lay.id)
+            self.assertLessEqual(max(lay.ys) + h, 297, lay.id)
+
+    def test_cropdeck_run_expects_the_default_layouts_count(self):
+        from cropdeck.cli import _parser
+
+        self.assertEqual(_parser().parse_args(["run"]).expect, 8)
 
 
 @unittest.skipIf(TestClient is None, 'needs pip install "cropdeck[ui]"')

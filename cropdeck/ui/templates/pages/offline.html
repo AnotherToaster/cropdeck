@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{# Kept by the service worker and shown in the app window when the server is not running. #}
+{% block header %}{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ t("offline.title") }}</h1>
+<p>{{ t("offline.body") }}</p>
+{% endblock %}

@@ -2,6 +2,7 @@
 cropdeck ui - start the browser interface on this computer and open it.
 
     cropdeck ui                 serves on 127.0.0.1:8737 and opens the browser
+    cropdeck ui D:\\Cards       works on that cards folder (remembered for next time)
     cropdeck ui --port 9000     another port
     cropdeck ui --no-browser    serve only
 
@@ -31,6 +32,7 @@ TRIES = 10  # ports tried upwards from the default before giving up
 
 
 def add_arguments(p: argparse.ArgumentParser):
+    p.add_argument("folder", nargs="?", default=None, help="cards folder [default: the last one]")
     p.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"port (default {DEFAULT_PORT})")
     p.add_argument("--no-browser", action="store_true", help="serve only, do not open a browser")
     p.add_argument("--dev", action="store_true", help="design-check helpers (?theme=dark|light)")
@@ -102,6 +104,7 @@ def run(args) -> int:
     try:
         import uvicorn
 
+        from . import session
         from .app import create_app
     except ImportError:
         print(
@@ -125,5 +128,7 @@ def run(args) -> int:
     print(f"cropdeck runs at {url(port)}  - close this window or press Ctrl+C to stop it.")
     if not args.no_browser:
         open_when_ready(port)
-    uvicorn.run(create_app(port, dev=args.dev), host=HOST, port=port, log_level="warning")
+    work = session.load(Path(args.folder) if args.folder else None)
+    app = create_app(port, dev=args.dev, work=work)
+    uvicorn.run(app, host=HOST, port=port, log_level="warning")
     return 0

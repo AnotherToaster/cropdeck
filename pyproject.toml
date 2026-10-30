@@ -57,8 +57,13 @@ cropdeck = [
   "data/locales/*.json",
   "data/locales/ui/*.json",
   "ui/templates/*.html",
+  "ui/templates/components/*.html",
+  "ui/templates/pages/*.html",
   "ui/static/*.css",
+  "ui/static/*.js",
+  "ui/static/*.webmanifest",
   "ui/static/fonts/*",
+  "ui/static/img/*",
   "ui/static/js/*",
 ]
 

@@ -16,7 +16,8 @@ from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from . import i18n
+from . import i18n, session
+from .routes import pages
 
 HERE = Path(__file__).resolve().parent
 HEALTH = "cropdeck ok"  # what /health answers; the launcher recognises a running cropdeck by it
@@ -24,12 +25,20 @@ SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 THEMES = {"light", "dark"}
 
 
-def create_app(port: int, *, dev: bool = False, hosts: tuple[str, ...] = ()) -> FastAPI:
+def create_app(
+    port: int,
+    *,
+    dev: bool = False,
+    hosts: tuple[str, ...] = (),
+    work: session.Session | None = None,
+) -> FastAPI:
     """The app for a server on 127.0.0.1:port. dev adds the design-check helpers; hosts adds
-    host names to accept besides 127.0.0.1 and localhost (the tests' client)."""
+    host names to accept besides 127.0.0.1 and localhost (the tests' client); work is the folder
+    and layout to show (none: setup first)."""
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     allowed = {f"127.0.0.1:{port}", f"localhost:{port}", *hosts}
     origins = {f"http://127.0.0.1:{port}", f"http://localhost:{port}"}
+    work = work or session.Session(None, session.LAYOUTS[session.DEFAULT])
 
     templates = Jinja2Templates(directory=HERE / "templates")
     templates.env.globals["t"] = i18n.t
@@ -44,18 +53,20 @@ def create_app(port: int, *, dev: bool = False, hosts: tuple[str, ...] = ()) -> 
             return PlainTextResponse("Requests from other websites are refused.", 403)
         return await call_next(request)
 
-    def page(request: Request, template: str, **context) -> HTMLResponse:
+    def render(request: Request, template: str, **context) -> HTMLResponse:
         # dev only: ?theme=dark|light forces a theme, for screenshots against the design
         theme = request.query_params.get("theme") if dev else None
-        context.update(lang=i18n.DEFAULT, theme=theme if theme in THEMES else None)
+        context.update(
+            lang=i18n.DEFAULT,
+            theme=theme if theme in THEMES else None,
+            work=work,
+            review_count=0,  # cards that need a look - counted from phase 6 (review)
+        )
         return templates.TemplateResponse(request, template, context)
 
     @app.get("/health", response_class=PlainTextResponse)
     def health():
         return HEALTH
 
-    @app.get("/", response_class=HTMLResponse)
-    def home(request: Request):
-        return page(request, "base.html")
-
+    pages.register(app, render, work, HERE / "static")
     return app

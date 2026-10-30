@@ -1,15 +1,42 @@
+{%- from "components/icons.html" import icon -%}
 <!doctype html>
 <html lang="{{ lang }}"{% if theme %} data-theme="{{ theme }}"{% endif %}>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ t("app.name") }}{% endblock %}</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/static/tokens.css">
   <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
+  <header class="site-header">
+    <a class="brand" href="/">
+      <img src="/static/img/icon.svg" width="28" height="28" alt="">
+      <span class="wordmark"><span class="crop">crop</span><span class="deck">deck</span></span>
+    </a>
+    {% block header %}
+    <nav class="nav" aria-label="{{ t('nav.label') }}">
+      {% for key, href in [("scan", "/"), ("review", "/review"), ("collection", "/collection")] %}
+      <a href="{{ href }}"{% if current == key %} aria-current="page"{% endif %}>
+        {{- t("nav." ~ key) -}}
+        {% if key == "review" and review_count %}<span class="pill num" aria-label="{{ t('nav.needs_look', n=review_count) }}">{{ review_count }}</span>{% endif %}
+      </a>
+      {% endfor %}
+    </nav>
+    <div class="header-end">
+      {% if work.folder %}
+      <span class="chip" title="{{ t('chip.folder') }}: {{ work.folder }}">{{ icon("folder", 16) }}<span class="path">{{ work.folder }}</span></span>
+      {% endif %}
+      <span class="chip" title="{{ t('chip.layout') }}">{{ t("layouts." ~ work.layout.id ~ ".name") }}</span>
+      <a class="icon-button" href="/settings" aria-label="{{ t('nav.settings') }}"{% if current == "settings" %} aria-current="page"{% endif %}>{{ icon("settings") }}</a>
+    </div>
+    {% endblock %}
+  </header>
   <main class="page">{% block content %}{% endblock %}</main>
   <script src="/static/js/htmx.min.js"></script>
   <script src="/static/js/htmx-ext-sse.js"></script>
+  <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");</script>
 </body>
 </html>
