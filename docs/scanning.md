@@ -24,6 +24,11 @@ have already cut (`sorted/.cardsplit-state.json`), so finished scans are simply 
 
 - 2 × 3 cards per scan works; 3 × 3 is faster (12 + 12 passes for 100 cards instead of 17 + 17).
   Tell the tools with `cropdeck run --expect 9`.
+- 4 × 2 with every card lying sideways — four along the long side of the glass, two across —
+  leaves the most room between cards: about 34 mm across and 45 mm down on A4. Use
+  `cropdeck run --expect 8`. Sideways cards are turned clockwise to stand up; lay them all the same
+  way, and if they come out upside down, turn them the other way round next time (or cut that tray
+  with `cropdeck split … --rotate 180`). Tested with synthetic trays in `tests/test_pipeline.py`.
 - Cards ~5–8 mm apart, ~1 cm from the platen edges. Tilt up to ~10° is corrected, sideways cards
   are stood upright, touching cards are cut apart.
 - **Backing:** the scanner's plain white lid is usually best — no dust, no creases. The tools
