@@ -1,3 +1,5 @@
+# vendored files (htmx, fonts) stay byte for byte as published
+exclude: ^cropdeck/ui/static/(js|fonts)/
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.5

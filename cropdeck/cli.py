@@ -28,6 +28,7 @@ STEPS = {
     "split": ("split", "crop the cards out of flatbed scans; --pair matches fronts with backs"),
     "name": ("name", "read each card's name and number (OCR) and rename front and back together"),
     "track": ("track", "build or update the tracker workbook from cards.csv"),
+    "ui": ("ui.server", "open the browser interface (early: in development)"),
 }
 
 

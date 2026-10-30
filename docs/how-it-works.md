@@ -168,6 +168,8 @@ cropdeck run [FOLDER]   crop + pair FOLDER/scans -> FOLDER/sorted
   --names               also run the name step
   --tracker             also run the track step
 cropdeck status [FOLDER]
+cropdeck ui              the browser interface (early, in development): 127.0.0.1:8737
+  --port N  --no-browser  --dev
 
 cropdeck split [input ...] [-o OUT]
   --pair                odd scans = fronts, even = their backs
