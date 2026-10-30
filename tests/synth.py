@@ -15,7 +15,17 @@ MM = DPI / 25.4
 CARD_W, CARD_H = round(63 * MM), round(88 * MM)
 A4_W, A4_H = round(210 * MM), round(297 * MM)
 # one distinct, saturated colour per slot (BGR)
-MARKS = [(0, 0, 255), (0, 200, 0), (255, 0, 0), (0, 220, 220), (220, 0, 220), (220, 220, 0)]
+MARKS = [
+    (0, 0, 255),
+    (0, 200, 0),
+    (255, 0, 0),
+    (0, 220, 220),
+    (220, 0, 220),
+    (220, 220, 0),
+    (0, 120, 255),
+    (128, 0, 128),
+]
+TILTS = (-2.5, 1.5, 3.0, -1.0, 0.5, -3.0, 2.0, -1.5)  # degrees, one per slot
 
 
 def _front(i: int, rng) -> np.ndarray:
@@ -45,17 +55,32 @@ def _mark(img: np.ndarray, i: int) -> np.ndarray:
     return out
 
 
-def _slots():
-    """2 columns x 3 rows, ~1 cm apart, small tilts."""
-    gap = round(12 * MM)
-    x0 = (A4_W - 2 * CARD_W - gap) // 2
-    y0 = round(15 * MM)
-    for r in range(3):
-        for c in range(2):
+def _slots(layout: str):
+    """
+    Card centres and angles on an A4 platen.
+
+    "2x3": 2 columns x 3 rows of upright cards, ~1 cm apart.
+    "4x2": 4 cards along the long side of the glass and 2 across, every card lying sideways
+           (turned 90 degrees counter-clockwise) - the layout that fits 8 cards on A4.
+    Every card also gets a small tilt of its own.
+    """
+    if layout == "2x3":
+        cols, rows, w, h, base = 2, 3, CARD_W, CARD_H, 0.0
+        gap_x = gap_y = round(12 * MM)
+        x0, y0 = (A4_W - cols * w - gap_x) // 2, round(15 * MM)
+    elif layout == "4x2":
+        cols, rows, w, h, base = 2, 4, CARD_H, CARD_W, 90.0
+        gap_x, gap_y = round(10 * MM), round(8 * MM)
+        x0 = (A4_W - cols * w - (cols - 1) * gap_x) // 2
+        y0 = (A4_H - rows * h - (rows - 1) * gap_y) // 2
+    else:
+        raise ValueError(f"unknown layout {layout!r}")
+    for r in range(rows):
+        for c in range(cols):
             yield (
-                x0 + c * (CARD_W + gap) + CARD_W // 2,
-                y0 + r * (CARD_H + gap) + CARD_H // 2,
-                (-2.5, 1.5, 3.0, -1.0, 0.5, -3.0)[r * 2 + c],
+                x0 + c * (w + gap_x) + w // 2,
+                y0 + r * (h + gap_y) + h // 2,
+                base + TILTS[r * cols + c],
             )
 
 
@@ -70,15 +95,16 @@ def _place(platen: np.ndarray, card: np.ndarray, cx: int, cy: int, angle: float)
     platen[mask > 127] = warped[mask > 127]
 
 
-def tray(seed: int = 0, backing=(245, 245, 245)):
-    """(fronts_scan, backs_scan, slot_colours): one tray of six cards, fronts and backs."""
+def tray(seed: int = 0, backing=(245, 245, 245), layout: str = "2x3"):
+    """(fronts_scan, backs_scan, slot_colours): one tray of cards, fronts and backs."""
     rng = np.random.default_rng(seed)
     fronts = np.full((A4_H, A4_W, 3), backing, np.uint8)
     backs = fronts.copy()
     back = _back()
-    for i, (cx, cy, a) in enumerate(_slots()):
+    for i, (cx, cy, a) in enumerate(_slots(layout)):
+        tilt = a - round(a / 90) * 90
         _place(fronts, _mark(_front(i, rng), i), cx, cy, a)
-        _place(backs, _mark(back, i), cx, cy, -a / 2)  # flipped in place, slightly re-tilted
+        _place(backs, _mark(back, i), cx, cy, a - tilt * 1.5)  # flipped in place, re-tilted
     noise = rng.normal(0, 2, fronts.shape)
     return (
         np.clip(fronts + noise, 0, 255).astype(np.uint8),
