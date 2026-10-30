@@ -1,7 +1,7 @@
 <h1>
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
-    <img alt="cropdeck" src="docs/assets/logo-light.svg" height="72">
+    <source media="(prefers-color-scheme: dark)" srcset="cropdeck/ui/static/img/logo-dark.svg">
+    <img alt="cropdeck" src="cropdeck/ui/static/img/logo-light.svg" height="72">
   </picture>
 </h1>
 

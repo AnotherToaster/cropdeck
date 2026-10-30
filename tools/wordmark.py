@@ -1,12 +1,13 @@
 """
-Build the cropdeck wordmark: docs/assets/icon.svg followed by "cropdeck" set in Inter Bold.
+Build the cropdeck wordmark: the icon (cropdeck/ui/static/img/icon.svg) followed by "cropdeck"
+in Inter Bold.
 
 The letters are written as outlines (SVG paths), so the logo renders the same everywhere -
 on GitHub, in a browser without the font, in an image converter. Inter is under the SIL
 Open Font License; it is downloaded when this runs and never committed.
 
     pip install fonttools
-    python tools/wordmark.py            # writes docs/assets/logo-light.svg and logo-dark.svg
+    python tools/wordmark.py            # writes logo-light.svg and logo-dark.svg next to the icon
 
 "light" and "dark" mean the background the logo sits on.
 """
@@ -22,7 +23,8 @@ from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
 
-ASSETS = Path(__file__).resolve().parent.parent / "docs" / "assets"
+# the logo lives in the package, where the UI serves it; the README shows it from there too
+ASSETS = Path(__file__).resolve().parent.parent / "cropdeck" / "ui" / "static" / "img"
 TEXT_SIZE = 41.4  # font size in icon units: the lower-case letters sit level with the card
 TEXT_X, BASELINE = 72, 46
 
