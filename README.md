@@ -66,7 +66,7 @@ mycards/
   scans/                         your scans - never changed
   sorted/
     card_0001_front.png          the same number = the same physical card
-    card_0001_back.png
+    card_0001_rear.png
     ...
     cards.csv                    one row per card
     _pairs/                      one proof sheet per tray: every front beside its back
