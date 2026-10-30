@@ -116,9 +116,7 @@ def back() -> np.ndarray:
 
 def cut_tray() -> tuple[np.ndarray, np.ndarray, list[tuple[np.ndarray, np.ndarray]]]:
     """A synthetic tray, run through the real split step. Returns both scans and the pairs."""
-    fronts, backs, _ = synth.tray(
-        seed=7, layout="2x4-sideways", front=front, back=back(), marked=False
-    )
+    fronts, backs, _ = synth.tray(seed=7, layout="s8", front=front, back=back(), marked=False)
     with tempfile.TemporaryDirectory() as tmp:
         scans, out = Path(tmp, "scans"), Path(tmp, "sorted")
         scans.mkdir()

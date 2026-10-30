@@ -10,6 +10,8 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
+from cropdeck.layouts import LAYOUTS
+
 DPI = 300
 MM = DPI / 25.4
 CARD_W, CARD_H = round(63 * MM), round(88 * MM)
@@ -24,8 +26,9 @@ MARKS = [
     (220, 220, 0),
     (0, 120, 255),
     (128, 0, 128),
+    (200, 120, 60),
 ]
-TILTS = (-2.5, 1.5, 3.0, -1.0, 0.5, -3.0, 2.0, -1.5)  # degrees, one per slot
+TILTS = (-2.5, 1.5, 3.0, -1.0, 0.5, -3.0, 2.0, -1.5, 1.0)  # degrees, one per slot
 
 
 def _front(i: int, rng) -> np.ndarray:
@@ -57,35 +60,17 @@ def _mark(img: np.ndarray, i: int) -> np.ndarray:
 
 def _slots(layout: str):
     """
-    Card centres and angles on an A4 platen, named columns x rows as the cards lie on the glass:
-
-    "2x3-upright":  6 cards standing upright, 12 mm apart across and 8 mm down.
-    "2x3-sideways": 6 cards lying sideways (turned 90 degrees counter-clockwise), 20 mm between
-                    rows - how most people lay a tray.
-    "2x4-sideways": the same with a fourth row, 8 mm between rows - the most cards A4 takes.
-    Every card also gets a small tilt of its own.
+    Card centres (px) and angles for one of cropdeck's layouts (cropdeck/layouts.py, the only
+    table of them): s8 and s6 lie sideways, u6 and u9 stand upright. Every card also gets a small
+    tilt of its own, as cards laid by hand do.
     """
-    upright, sideways = (CARD_W, CARD_H, 0.0), (CARD_H, CARD_W, 90.0)
-    layouts = {  # cols, rows, (width, height, base angle), gap across, gap down - in mm
-        "2x3-upright": (2, 3, upright, 12, 8),
-        "2x3-sideways": (2, 3, sideways, 10, 20),
-        "2x4-sideways": (2, 4, sideways, 10, 8),
-    }
-    if layout not in layouts:
-        raise ValueError(f"unknown layout {layout!r}; one of {', '.join(layouts)}")
-    cols, rows, (w, h, base), gap_x, gap_y = layouts[layout]
-    gap_x, gap_y = round(gap_x * MM), round(gap_y * MM)
-    # centred on the glass; every layout leaves every card fully on the platen
-    x0 = (A4_W - cols * w - (cols - 1) * gap_x) // 2
-    y0 = (A4_H - rows * h - (rows - 1) * gap_y) // 2
-    assert x0 > 0 and y0 > 0, f"{layout} does not fit on A4"
-    for r in range(rows):
-        for c in range(cols):
-            yield (
-                x0 + c * (w + gap_x) + w // 2,
-                y0 + r * (h + gap_y) + h // 2,
-                base + TILTS[r * cols + c],
-            )
+    if layout not in LAYOUTS:
+        raise ValueError(f"unknown layout {layout!r}; one of {', '.join(LAYOUTS)}")
+    lay = LAYOUTS[layout]
+    w, h = lay.card
+    base = 90.0 if lay.sideways else 0.0
+    for i, (x, y) in enumerate(lay.slots()):
+        yield round((x + w / 2) * MM), round((y + h / 2) * MM), base + TILTS[i]
 
 
 def _place(platen: np.ndarray, card: np.ndarray, cx: int, cy: int, angle: float):
@@ -102,7 +87,7 @@ def _place(platen: np.ndarray, card: np.ndarray, cx: int, cy: int, angle: float)
 def tray(
     seed: int = 0,
     backing=(245, 245, 245),
-    layout: str = "2x3-upright",
+    layout: str = "u6",
     front=None,
     back: np.ndarray | None = None,
     marked: bool = True,
