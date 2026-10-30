@@ -46,7 +46,7 @@ A change in behaviour comes with a test, and the test must fail without the chan
   squash-merged, so the title becomes the one commit on `main` and the line in the changelog.
   A breaking change gets a `!` (`feat!: …`).
 - Commits inside a branch may be as small as you like; keep `docs/` true with the change.
-- CI must be green: ruff, and the tests on Linux, macOS and Windows with Python 3.10-3.13.
+- CI must be green: ruff, and the tests on Linux (Python 3.10 and 3.13), Windows and macOS.
 
 **Releases are automatic.** [release-please](https://github.com/googleapis/release-please) keeps
 one open "chore(main): release x.y.z" PR with the next version and the changelog. Merging it tags
