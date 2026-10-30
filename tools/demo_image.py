@@ -128,7 +128,7 @@ def cut_tray() -> tuple[np.ndarray, np.ndarray, list[tuple[np.ndarray, np.ndarra
         if cropdeck(argv + ["--dpi", str(synth.DPI), "--no-sheet"]) != 0:
             raise SystemExit("cropdeck split failed on the demo tray")
         pairs = [
-            (cv2.imread(str(f)), cv2.imread(str(f).replace("_front", "_back")))
+            (cv2.imread(str(f)), cv2.imread(str(f).replace("_front", "_rear")))
             for f in sorted(out.glob("card_*_front.png"))
         ]
     if len(pairs) != 8:

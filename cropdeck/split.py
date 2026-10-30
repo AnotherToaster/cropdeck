@@ -19,7 +19,7 @@ import cv2
 import numpy as np
 
 from . import paths
-from .card import guess_dpi
+from .card import FRONT, REAR, guess_dpi
 from .detect import backing_color, find_cards, refine_rect
 from .extract import extract_card
 from .guards import check_backs, thumbs
@@ -171,8 +171,8 @@ def run_paired(files, out_dir: Path, args, rows: list, state: dict) -> int:
             n += 1
             card_no = state["next"]
             state["next"] += 1
-            fn = f"{args.prefix}{card_no:04d}_front{args.format}"
-            bn = f"{args.prefix}{card_no:04d}_back{args.format}"
+            fn = f"{args.prefix}{card_no:04d}_{FRONT}{args.format}"
+            bn = f"{args.prefix}{card_no:04d}_{REAR}{args.format}"
             f_card = render(f_img, f_rect, f_dpi, args, args.rotate)
             b_card = render(
                 b_img,
@@ -281,7 +281,7 @@ def add_arguments(p: argparse.ArgumentParser):
         action="store_true",
         help="fronts and backs alternate (scan 1 = fronts, scan 2 = those same "
         "cards' backs, scan 3 = next tray's fronts, ...). Outputs "
-        "card_0001_front / card_0001_back.",
+        "card_0001_front / card_0001_rear.",
     )
     p.add_argument(
         "--back-order",
