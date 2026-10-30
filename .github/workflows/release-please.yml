@@ -1,0 +1,64 @@
+name: Release
+
+# On every push to main, release-please keeps one open release PR up to date: the next version
+# (feat -> minor, fix -> patch while below 1.0) and the CHANGELOG, from the merged PR titles.
+# Merging that PR tags the release and creates the GitHub release; the jobs below then build the
+# package, attach it to the release and, once enabled, publish it to PyPI.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      created: ${{ steps.release.outputs.release_created }}
+      tag: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v5
+        id: release
+
+  build:
+    needs: release-please
+    if: needs.release-please.outputs.created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release-please.outputs.tag }}
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -U pip build
+      - run: python -m build
+      - run: gh release upload "${{ needs.release-please.outputs.tag }}" dist/*
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+  # Off until PyPI's trusted publisher is set up: repository variable PUBLISH_PYPI = true.
+  pypi:
+    needs: build
+    if: vars.PUBLISH_PYPI == 'true'
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
