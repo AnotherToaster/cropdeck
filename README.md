@@ -9,6 +9,13 @@ True-scale scans of trading cards (TCG), front and back paired. Turn flatbed sca
 correctly paired front/back images, optionally named by what is printed on the card and tracked
 in a spreadsheet.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/demo-dark.png">
+  <img alt="Two flatbed scans - six cards face up, then the same six flipped in place - and cropdeck's output: each card cut out upright, its front next to its own back." src="docs/assets/demo-light.png">
+</picture>
+
+<sub>Synthetic cards drawn by <code>tools/demo_image.py</code>; the right-hand side is real cropdeck output.</sub>
+
 ```
 scan 6 cards  →  flip each in place  →  scan the backs  →  one command
                                                             │
