@@ -63,7 +63,7 @@ class Split(unittest.TestCase):
         fronts = sorted(self.out.glob("card_*_front.png"))
         self.assertEqual(len(fronts), 6)
         for fp in fronts:
-            front, back = cv2.imread(str(fp)), cv2.imread(str(fp).replace("_front", "_back"))
+            front, back = cv2.imread(str(fp)), cv2.imread(str(fp).replace("_front", "_rear"))
             # a front and its back carry the same corner colour only if they are the same card
             self.assertTrue(close(synth.mark_colour(front), synth.mark_colour(back)), fp.name)
             # true scale: 63 x 88 mm plus 1 mm padding each side, at scan dpi, never rescaled
@@ -88,13 +88,22 @@ class Split(unittest.TestCase):
         fronts = sorted(self.out.glob("card_*_front.png"))
         self.assertEqual(len(fronts), n)
         for fp in fronts:
-            front, back = cv2.imread(str(fp)), cv2.imread(str(fp).replace("_front", "_back"))
+            front, back = cv2.imread(str(fp)), cv2.imread(str(fp).replace("_front", "_rear"))
             self.assertTrue(close(synth.mark_colour(front), synth.mark_colour(back)), fp.name)
             h, w = front.shape[:2]
             self.assertAlmostEqual(w, round(65 * synth.MM), delta=3)  # upright: narrow side across
             self.assertAlmostEqual(h, round(90 * synth.MM), delta=3)
         cols = [synth.mark_colour(cv2.imread(str(p))) for p in fronts]
         self.assertEqual(len({tuple(round(v / 40) for v in c) for c in cols}), n)
+
+    def test_each_front_sorts_ahead_of_its_own_rear(self):
+        f, b, _ = synth.tray(0)
+        write_trays(self.scans, [(f, b)])
+        self.assertEqual(self.split().returncode, 0)
+        names = sorted(p.name for p in self.out.glob("card_*.png"))
+        self.assertEqual(
+            names[:3], ["card_0001_front.png", "card_0001_rear.png", "card_0002_front.png"]
+        )
 
     def test_resume_cuts_nothing_twice_and_numbers_on(self):
         f, b, _ = synth.tray(0)
@@ -148,7 +157,7 @@ class Command(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertNotIn("expected", r.stdout)
         self.assertEqual(len(list((home / "sorted").glob("card_*_front.png"))), 8)
-        self.assertEqual(len(list((home / "sorted").glob("card_*_back.png"))), 8)
+        self.assertEqual(len(list((home / "sorted").glob("card_*_rear.png"))), 8)
         self.assertFalse(list(home.glob("*.xlsx")))  # tracker only with --tracker
 
     def test_status_reports_without_processing(self):
@@ -228,6 +237,18 @@ class Names(unittest.TestCase):
         self.assertIn("Tesseract engine is not installed", r.stderr)
         self.assertNotIn("Traceback", r.stderr)
 
+    @unittest.skipUnless(shutil.which("tesseract"), "needs the Tesseract engine")
+    def test_a_folder_cut_before_rear_still_pairs_and_is_tidied(self):
+        folder = Path(tempfile.mkdtemp())
+        f, b, _ = synth.tray(0)
+        cv2.imwrite(str(folder / "card_0001_front.png"), f[:1063, :768])
+        cv2.imwrite(str(folder / "card_0001_back.png"), b[:1063, :768])  # the old suffix
+        r = run("name", folder, "--timeout", 5)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(len(list(folder.glob("0001_*_front.png"))), 1)
+        self.assertEqual(len(list(folder.glob("0001_*_rear.png"))), 1)  # renamed with its front
+        self.assertEqual(list(folder.glob("*_back.png")), [])
+
     def test_renamed_files_are_not_matched_again(self):
         self.assertTrue(cardname.FRONT_RE.match("card_0007_front"))
         self.assertIsNone(cardname.FRONT_RE.match("0001_Charmander_9-25_front"))
@@ -248,7 +269,7 @@ class Tracker(unittest.TestCase):
     def cards(self, rows):
         for r in rows:
             r.update(
-                confidence="1.00", front=f"{r['card']}_front.png", back=f"{r['card']}_back.png"
+                confidence="1.00", front=f"{r['card']}_front.png", back=f"{r['card']}_rear.png"
             )
         with open(self.sorted / "cards.csv", "w", newline="", encoding="utf-8") as fh:
             w = csv.DictWriter(fh, fieldnames=list(rows[0]))

@@ -5,7 +5,7 @@ Runs AFTER cropdeck split --pair, over its output folder. Renames each front and
 back together, so the pairing survives:
 
     card_0001_front.png  ->  0001_Charmander_9-25_front.png
-    card_0001_back.png   ->  0001_Charmander_9-25_back.png
+    card_0001_rear.png   ->  0001_Charmander_9-25_rear.png
 
 The leading number is kept deliberately: it is the only thing tying a front to its
 back, and OCR is not allowed to be the thing that breaks that.
@@ -38,6 +38,7 @@ import cv2
 import numpy as np
 
 from . import manifest
+from .card import FRONT, OLD_REAR, REAR
 from .imageio import IMAGE_EXTS, imread_unicode
 
 try:
@@ -285,27 +286,28 @@ def run(args) -> int:
             parts.append(number)
         base = "_".join(parts)
 
+        stem = f.stem[: -len(FRONT)]
         back = next(
             (
                 b
                 for b in folder.iterdir()
-                if b.is_file() and b.stem == f.stem[: -len("front")] + "back"
+                if b.is_file() and b.stem in (stem + REAR, stem + OLD_REAR)
             ),
             None,
         )
 
         flag = "" if label else "   <- not recognised, left as 'unknown'"
         conf = f"{ratio:.2f}" if label else "-"
-        print(f"  {f.name:<28} -> {base}_front{f.suffix}   [{conf}]{flag}")
+        print(f"  {f.name:<28} -> {base}_{FRONT}{f.suffix}   [{conf}]{flag}")
         if label:
             named += 1
         else:
             unknown.append(f.name)
 
         if not args.dry_run:
-            f.rename(folder / f"{base}_front{f.suffix}")
+            f.rename(folder / f"{base}_{FRONT}{f.suffix}")
             if back:
-                back.rename(folder / f"{base}_back{back.suffix}")
+                back.rename(folder / f"{base}_{REAR}{back.suffix}")
 
         rows.append(
             {
@@ -314,8 +316,8 @@ def run(args) -> int:
                 "name_en": english or "",
                 "number": number.replace("-", "/") if number else "",
                 "confidence": conf,
-                "front": f"{base}_front{f.suffix}",
-                "back": f"{base}_back{back.suffix}" if back else "",
+                "front": f"{base}_{FRONT}{f.suffix}",
+                "back": f"{base}_{REAR}{back.suffix}" if back else "",
             }
         )
 

@@ -6,7 +6,7 @@ behaves oddly. The numbers quoted were measured on real scans during development
 ```
 scans/                       cropdeck split              sorted/
   tray_0001.jpg  ──┐                                         card_0001_front.png
-  tray_0002.jpg  ──┴──▶  detect → refine → crop  ──▶         card_0001_back.png
+  tray_0002.jpg  ──┴──▶  detect → refine → crop  ──▶         card_0001_rear.png
   tray_0003.jpg  ──┐     pair by platen position             ...
   tray_0004.jpg  ──┘                                         cards.csv, _pairs/, _debug/
                                     │
@@ -14,7 +14,7 @@ scans/                       cropdeck split              sorted/
                               cropdeck name  ── OCR name + number, fuzzy match in 5 languages (optional)
                                     │
                                     ▼
-                              0001_Charmander_9-25_front.png / _back.png
+                              0001_Charmander_9-25_front.png / _rear.png
                                     │
                                     ▼
                               cropdeck track  ── card-tracker.xlsx (optional)

@@ -10,6 +10,11 @@ from __future__ import annotations
 # --------------------------------------------------------------------------
 CARD_W_MM = 63.0
 CARD_H_MM = 88.0
+
+# File-name suffixes of a pair. "rear", not "back": file lists sort by name, and front < rear
+# keeps each front ahead of its back. Folders cut before 0.1 have "_back" files; the name step
+# still pairs those and renames them to "_rear".
+FRONT, REAR, OLD_REAR = "front", "rear", "back"
 CARD_ASPECT = CARD_W_MM / CARD_H_MM  # 0.716
 
 
