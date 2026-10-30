@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cropdeck"
+dynamic = ["version"]
+description = "True-scale scans of trading cards (TCG), front and back paired: flatbed scans -> cropped, paired images."
+keywords = ["trading cards", "tcg", "scanner", "flatbed", "pokemon tcg", "magic the gathering", "yu-gi-oh", "card collection"]
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "dr-dev", email = "cropdeck@dr-dev.ch" }]
+requires-python = ">=3.10"
+dependencies = ["opencv-python", "numpy"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Games/Entertainment",
+  "Topic :: Multimedia :: Graphics :: Capture :: Scanners",
+]
+
+[project.urls]
+Homepage = "https://github.com/AnotherToaster/cropdeck"
+Changelog = "https://github.com/AnotherToaster/cropdeck/blob/main/CHANGELOG.md"
+Issues = "https://github.com/AnotherToaster/cropdeck/issues"
+
+[project.optional-dependencies]
+names = ["pytesseract"]
+tracker = ["openpyxl"]
+all = ["pytesseract", "openpyxl"]
+dev = ["ruff", "pre-commit", "build"]
+
+[project.scripts]
+cropdeck = "cropdeck.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["cropdeck*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "cropdeck.__version__"}
+
+[tool.setuptools.package-data]
+cropdeck = ["data/*.json"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]

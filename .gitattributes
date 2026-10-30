@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.xlsx binary
+run-cards.bat text eol=crlf

@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+/scans/
+/sorted/
+*.xlsx
+build/
+*.egg-info/
+.idea/
+.venv/
+dist/
