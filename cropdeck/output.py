@@ -72,4 +72,4 @@ def write_manifest(rows, out_dir: Path, append: bool = False):
     Add this run's rows to cards.csv. When appending, previous rows are read back first,
     with any columns the name step added or that you typed in yourself.
     """
-    return manifest.write(out_dir, (manifest.read(out_dir) if append else []) + rows)
+    return manifest.append(out_dir, rows) if append else manifest.write(out_dir, rows)
