@@ -30,6 +30,8 @@ import urllib.request
 import webbrowser
 from pathlib import Path
 
+from . import wsl
+
 HOST = "127.0.0.1"
 DEFAULT_PORT = 8737
 TRIES = 10  # ports tried upwards from the default before giving up
@@ -98,12 +100,7 @@ def browser_command(target: str, version: str | None = None) -> list[str] | None
     """The command that opens target in Windows' browser when this runs inside WSL, else None
     (Python's own webbrowser module then knows what to do). Inside WSL it does not: there is no
     Linux browser, and xdg-open is usually missing."""
-    if version is None:
-        try:
-            version = Path("/proc/version").read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            version = ""
-    if "microsoft" not in version.lower():
+    if not wsl.inside(version):
         return None
     cmd = shutil.which("cmd.exe") or "/mnt/c/Windows/System32/cmd.exe"
     return [cmd, "/c", "start", "", target]
