@@ -125,12 +125,15 @@ class Shell(unittest.TestCase):
         self.c = client(work=session.load(self.folder, self.config))
 
     def test_every_screen_sits_in_the_shell_with_its_nav_item_current(self):
-        for path, item in (("/", "Scan"), ("/review", "Review"), ("/collection", "Collection")):
+        for path, item in (("/", "Scan"), ("/review", "Review")):
             html = self.c.get(path).text
             self.assertIn('class="site-header"', html, path)
             current = re.search(r'<a href="[^"]*" aria-current="page">\s*([A-Za-z]+)', html)
             self.assertEqual(current.group(1), item, path)
-        self.assertIn('aria-current="page"', self.c.get("/settings").text)
+        setup = self.c.get("/setup").text
+        settings = re.search(r'<a class="icon-button" href="/setup"[^>]*>', setup)
+        self.assertIn('aria-current="page"', settings.group(0))  # setup stands in for settings
+        self.assertNotIn("/collection", self.c.get("/").text)  # not built yet: not offered
 
     def test_the_header_shows_the_folder_and_the_layout(self):
         html = self.c.get("/").text
