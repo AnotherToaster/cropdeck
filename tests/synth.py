@@ -116,6 +116,22 @@ def tray(
     )
 
 
+def other_back() -> np.ndarray:
+    """A second back design (dark red, a pale band), unlike _back's blue one: another card game,
+    or the same game's Japanese print."""
+    img = np.full((CARD_H, CARD_W, 3), (40, 40, 160), np.uint8)
+    cv2.rectangle(img, (0, CARD_H // 3), (CARD_W, CARD_H // 2), (220, 220, 220), -1)
+    return img
+
+
+def blank(scan: np.ndarray, top_mm: float, bottom_mm: float = 297, left=0, right=210):
+    """The scan with a region of the glass emptied, as if no card lay there. blank(s, 220) takes
+    the s8 layout's bottom row (cards 7 and 8) away."""
+    out = scan.copy()
+    out[round(top_mm * MM) : round(bottom_mm * MM), round(left * MM) : round(right * MM)] = 245
+    return out
+
+
 def mark_colour(card: np.ndarray) -> tuple[int, int, int]:
     """The colour of a card image's corner mark (median of the mark area after cropping)."""
     s = round(8 * MM)

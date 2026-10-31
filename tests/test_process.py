@@ -11,7 +11,6 @@ import unittest
 from pathlib import Path
 
 import cv2
-import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -23,21 +22,6 @@ from cropdeck.imageio import IMAGE_EXTS  # noqa: E402
 from cropdeck.state import load_state, save_state  # noqa: E402
 
 OPTS = split.options(dpi=synth.DPI, expect=8, no_sheet=True)
-
-
-def without_bottom_row(scan):
-    """The scan with the s8 layout's bottom row (cards 7 and 8) taken off the glass."""
-    out = scan.copy()
-    out[round(220 * synth.MM) :, :] = 245
-    return out
-
-
-def other_back():
-    """A second back design: plain dark red with a pale stripe, unlike synth's blue one."""
-    img = np.full((synth.CARD_H, synth.CARD_W, 3), (40, 40, 160), np.uint8)
-    top, bottom = synth.CARD_H // 3, synth.CARD_H // 2
-    cv2.rectangle(img, (0, top), (synth.CARD_W, bottom), (220, 220, 220), -1)
-    return img
 
 
 class Core(unittest.TestCase):
@@ -116,7 +100,7 @@ class Core(unittest.TestCase):
     def test_a_count_mismatch_stops_and_later_trays_wait(self):
         f, b, _ = synth.tray(0, layout="s8")
         self.add("scan_001.png", f)
-        self.add("scan_002.png", without_bottom_row(b))
+        self.add("scan_002.png", synth.blank(b, 220))
         f2, b2, _ = synth.tray(1, layout="s8")
         self.add("scan_003.png", f2)
         self.add("scan_004.png", b2)
@@ -140,7 +124,7 @@ class Core(unittest.TestCase):
     def test_a_rescan_becomes_the_trays_backs_and_the_order_holds(self):
         f, b, _ = synth.tray(0, layout="s8")
         self.add("scan_001.png", f)
-        self.add("scan_002.png", without_bottom_row(b))
+        self.add("scan_002.png", synth.blank(b, 220))
         f2, b2, _ = synth.tray(1, layout="s8")
         self.add("scan_003.png", f2)
         self.add("scan_004.png", b2)
@@ -182,7 +166,7 @@ class Core(unittest.TestCase):
         self.add("scan_001.png", f)
         self.add("scan_002.png", b)
         for i, seed in enumerate((1, 2)):
-            f2, b2, _ = synth.tray(seed, layout="s8", back=other_back())
+            f2, b2, _ = synth.tray(seed, layout="s8", back=synth.other_back())
             self.add(f"scan_{2 * i + 3:03d}.png", f2)
             self.add(f"scan_{2 * i + 4:03d}.png", b2)
         events, _ = self.run_all()
@@ -196,7 +180,7 @@ class Core(unittest.TestCase):
     def test_a_skipped_tray_is_passed_over(self):
         f, b, _ = synth.tray(0, layout="s8")
         self.add("scan_001.png", f)
-        self.add("scan_002.png", without_bottom_row(b))
+        self.add("scan_002.png", synth.blank(b, 220))
         f2, b2, _ = synth.tray(1, layout="s8")
         self.add("scan_003.png", f2)
         self.add("scan_004.png", b2)
