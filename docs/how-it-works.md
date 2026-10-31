@@ -92,16 +92,37 @@ two fronts, so a card that moved halfway towards a neighbour's slot refuses the 
 3. The slots must line up geometrically (above).
 4. A proof sheet per tray in `_pairs/` — the last line of defence, for a human eye.
 
-Nothing is ever written for a tray that fails a guard. A count mismatch (1), or a tray where no
-cards are found, skips **that tray only** - the run goes on with the next one. A failed backs check
-(2) or slot check (3) **stops the run**: every later tray waits too, because a missing or swapped
-scan shifts everything after it. Either way the summary names each tray that was left out, and the
-command ends with exit code 1, so `cropdeck run` does not go on to `--names` or `--tracker` and a
-script notices.
+Nothing is ever written for a tray that fails a guard, and the run **stops there**: every later
+tray waits, so card numbers stay in tray order and a missing or swapped scan cannot shift the trays
+after it. The summary says why, and the command ends with exit code 1, so `cropdeck run` does not
+go on to `--names` or `--tracker` and a script notices. Run it again after fixing the scans, or
+choose a fix in `cropdeck ui` (below).
+
+### Tray by tray
+The paired run is one core (`process.py`) that both the command line and the browser interface
+use: it works through the trays one at a time and reports each step as an event - tray started,
+card done, tray done or stopped, run done. Each card is written the moment it is cut and paired;
+`cards.csv` and the state file are saved after every tray, so stopping or a crash loses nothing
+that was finished. `trays.py` works out which scan is which tray's fronts and backs: in name order,
+unless a fix assigned a scan differently.
+
+### Fixes for a stopped tray
+Chosen on the guard-stop page of `cropdeck ui`; each is recorded in the state file, and no scan is
+ever renamed, moved or deleted:
+
+| fix | for | what happens |
+|---|---|---|
+| rescan the backs | count, moved | the next new scan becomes this tray's backs; the old backs scan is marked unused |
+| process the pairs | count | the cards that have both sides are written, the rest stay in the scan |
+| I forgot the backs | not backs | the next new scan becomes this tray's backs; the scan read as its backs counts as the next tray's fronts |
+| another back design | not backs | the backs are learnt as a second back design of the folder, then paired |
+| swap | swapped | the second scan is read as the fronts |
+| keep as scanned | swapped | the tray is paired without the backs check |
+| skip | any | the tray is passed over for now; taking it back shows the stop again |
 
 ### Resume
 `sorted/.cardsplit-state.json` holds the next card number, every scan already processed (by name and
-byte size) and the backs reference. Finished scans can stay in `scans/`; `--status` reports,
+byte size), the known back designs and the fixes chosen per tray. Finished scans can stay in `scans/`; `--status` reports,
 `--restart` starts over.
 
 ## 2. cropdeck name — identifying the card
@@ -146,10 +167,18 @@ See [tracker.md](tracker.md).
 ## 4. cropdeck ui — the browser interface (early)
 
 A local web page for the whole loop, served from this computer only (`127.0.0.1:8737`, never the
-network) and opened in the browser; installable as an app window. Built in phases from the design
-handoff: foundations, the shell (header, navigation, folder and layout) and the components are in;
-the scan loop, setup, guard stops, review, collection and settings follow. The cards folder given
-to `cropdeck ui FOLDER` is remembered for the next start.
+network) and opened in the browser; installable as an app window. The cards folder given to
+`cropdeck ui FOLDER` is remembered for the next start. Built in phases from the design handoff:
+
+- **Scan loop** (`/`): always one next step, decided by the server from the folder itself - scan
+  the fronts, flip and scan the backs, process, working, stopped, done - with the trays newest
+  first and the card counts. New scans are noticed by checking the scans folder every 2 s; while
+  a run goes, the page follows it live (server-sent events) and each card appears as it is cut.
+- **Guard stops** (`/tray/N/stop`): both scans with the detected cards outlined, the reason in one
+  line, and the fixes above as buttons.
+- Setup, review, collection and settings follow.
+
+Thumbnails are small JPEGs cached in `sorted/_thumbs/`; the scans folder is only read.
 
 ## Design decisions
 
