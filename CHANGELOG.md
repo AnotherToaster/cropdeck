@@ -32,8 +32,3 @@
 * README rewritten for first-time users ([#14](https://github.com/AnotherToaster/cropdeck/issues/14)) ([4f20d54](https://github.com/AnotherToaster/cropdeck/commit/4f20d540862063c5a08044ec96ebba319a230c50))
 
 ## Changelog
-
-Written by [release-please](https://github.com/googleapis/release-please) from the titles of the
-pull requests merged into `main` (Conventional Commits). Versions follow
-[Semantic Versioning](https://semver.org/); until 1.0, minor versions may change the command line
-or file formats.
