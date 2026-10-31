@@ -1,5 +1,31 @@
 {
   "app": {
-    "name": "cropdeck"
+    "name": "cropdeck",
+    "local_only": "Runs on this computer only. No account, works offline."
+  },
+  "nav": {
+    "label": "Main",
+    "scan": "Scan",
+    "review": "Review",
+    "collection": "Collection",
+    "settings": "Settings",
+    "needs_look": "{n} need a look"
+  },
+  "chip": {
+    "folder": "Cards folder",
+    "layout": "Layout"
+  },
+  "layouts": {
+    "s8": { "name": "8 sideways", "grid": "2 across, 4 down", "sub": "2 across, 4 down. Most cards per scan." },
+    "s6": { "name": "6 sideways", "grid": "2 across, 3 down", "sub": "2 across, 3 down. More room, easier to flip." },
+    "u6": { "name": "6 upright", "grid": "3 across, 2 down", "sub": "3 across, 2 down." },
+    "u9": { "name": "9 upright", "grid": "3 across, 3 down", "sub": "3 across, 3 down. A tight fit on A4." }
+  },
+  "setup": {
+    "title": "Where your cards live, and how they lie on the glass"
+  },
+  "offline": {
+    "title": "cropdeck is not running",
+    "body": "Start it again with cropdeck ui, then reload this window."
   }
 }

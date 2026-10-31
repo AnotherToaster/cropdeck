@@ -75,10 +75,10 @@ class Split(unittest.TestCase):
         self.assertEqual(len({tuple(round(v / 40) for v in c) for c in cols}), 6)
 
     def test_six_sideways_cards_pair_and_stand_up_at_true_scale(self):
-        self.check_layout("2x3-sideways", 6)
+        self.check_layout("s6", 6)
 
     def test_eight_sideways_cards_in_four_rows_pair_and_stand_up_at_true_scale(self):
-        self.check_layout("2x4-sideways", 8)  # the most cards A4 takes with room to spare
+        self.check_layout("s8", 8)  # the most cards A4 takes with room to spare
 
     def check_layout(self, layout: str, n: int):
         f, b, _ = synth.tray(0, layout=layout)
@@ -129,8 +129,8 @@ class Split(unittest.TestCase):
         self.assertEqual(list(self.out.glob("card_*.png")), [])
 
     def test_a_skipped_tray_is_named_not_reported_as_done(self):
-        f, _, _ = synth.tray(0, layout="2x4-sideways")  # 8 fronts ...
-        _, b, _ = synth.tray(0, layout="2x3-sideways")  # ... but only 6 backs
+        f, _, _ = synth.tray(0, layout="s8")  # 8 fronts ...
+        _, b, _ = synth.tray(0, layout="s6")  # ... but only 6 backs
         write_trays(self.scans, [(f, b)])
         r = self.split()
         self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
@@ -151,7 +151,7 @@ class Command(unittest.TestCase):
 
     def test_run_crops_and_pairs_a_folder_and_nothing_more(self):
         home = Path(tempfile.mkdtemp())
-        f, b, _ = synth.tray(0, layout="2x4-sideways")  # the default: 8 cards, no --expect
+        f, b, _ = synth.tray(0, layout="s8")  # the default: 8 cards, no --expect
         write_trays(home / "scans", [(f, b)])
         r = run("run", home, "--dpi", synth.DPI)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)

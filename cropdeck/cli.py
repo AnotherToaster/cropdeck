@@ -23,6 +23,8 @@ import sys
 from pathlib import Path
 
 from . import __version__, paths
+from .layouts import DEFAULT as DEFAULT_LAYOUT
+from .layouts import LAYOUTS
 
 STEPS = {
     "split": ("split", "crop the cards out of flatbed scans; --pair matches fronts with backs"),
@@ -59,8 +61,9 @@ def _parser() -> argparse.ArgumentParser:
     r.add_argument(
         "--expect",
         type=int,
-        default=8,
-        help="cards per scan (default 8: two across, four down, lying sideways)",
+        default=LAYOUTS[DEFAULT_LAYOUT].count,
+        help=f"cards per scan (default {LAYOUTS[DEFAULT_LAYOUT].count}: the default layout, "
+        "two across, four down, lying sideways)",
     )
     r.add_argument("--dpi", type=float, default=None, help="scan resolution if not A4-detectable")
     r.add_argument("--names", action="store_true", help="also read names and numbers (OCR)")

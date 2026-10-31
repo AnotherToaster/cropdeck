@@ -1,0 +1,14 @@
+{# Inline icons, 24 x 24 grid, drawn in the current text colour. Decorative: the control that
+   holds one carries the words (or an aria-label). #}
+{% macro icon(name, size=20) -%}
+<svg class="icon" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+{%- if name == "folder" %}<path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4l2 2.5h9A1.5 1.5 0 0 1 21 9v9.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z"/>
+{%- elif name == "settings" %}<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>
+{%- elif name == "play" %}<path d="M8 5v14l11-7z"/>
+{%- elif name == "check" %}<path d="M5 12.5l4.5 4.5L19 7.5"/>
+{%- elif name == "lock" %}<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+{%- elif name == "download" %}<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>
+{%- endif %}
+</svg>
+{%- endmacro %}

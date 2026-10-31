@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{# A screen whose phase has not come yet: its title inside the shell, nothing invented. #}
+{% block title %}{{ t("nav." ~ current) }} · {{ t("app.name") }}{% endblock %}
+{% block content %}<h1 class="page-title">{{ t("nav." ~ current) }}</h1>{% endblock %}

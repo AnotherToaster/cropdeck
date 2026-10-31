@@ -168,7 +168,8 @@ cropdeck run [FOLDER]   crop + pair FOLDER/scans -> FOLDER/sorted
   --names               also run the name step
   --tracker             also run the track step
 cropdeck status [FOLDER]
-cropdeck ui              the browser interface (early, in development): 127.0.0.1:8737
+cropdeck ui [FOLDER]     the browser interface (early, in development): 127.0.0.1:8737,
+                         the cards folder remembered for next time; installable as an app window
   --port N  --no-browser  --dev
 
 cropdeck split [input ...] [-o OUT]
