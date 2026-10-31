@@ -1,0 +1,8 @@
+{#- Status badge (design: Components > Status badge). The kind sets ground, text and dot; the dot's
+    shape carries the meaning too, so state never rests on colour alone. -#}
+{% set KINDS = ["waiting", "working", "done", "skipped", "stopped", "needs-backs", "ready",
+                "check", "unread", "filled", "accepted",
+                "scanned", "listed", "sold", "shipped", "keeping"] %}
+{% macro badge(kind, label=None) -%}
+<span class="badge" data-kind="{{ kind }}"><span class="dot" aria-hidden="true"></span>{{ label or t("badge." ~ kind) }}</span>
+{%- endmacro %}

@@ -16,10 +16,26 @@
     "layout": "Layout"
   },
   "layouts": {
-    "s8": { "name": "8 sideways", "grid": "2 across, 4 down", "sub": "2 across, 4 down. Most cards per scan." },
-    "s6": { "name": "6 sideways", "grid": "2 across, 3 down", "sub": "2 across, 3 down. More room, easier to flip." },
-    "u6": { "name": "6 upright", "grid": "3 across, 2 down", "sub": "3 across, 2 down." },
-    "u9": { "name": "9 upright", "grid": "3 across, 3 down", "sub": "3 across, 3 down. A tight fit on A4." }
+    "s8": {
+      "name": "8 sideways",
+      "grid": "2 across, 4 down",
+      "sub": "2 across, 4 down. Most cards per scan."
+    },
+    "s6": {
+      "name": "6 sideways",
+      "grid": "2 across, 3 down",
+      "sub": "2 across, 3 down. More room, easier to flip."
+    },
+    "u6": {
+      "name": "6 upright",
+      "grid": "3 across, 2 down",
+      "sub": "3 across, 2 down."
+    },
+    "u9": {
+      "name": "9 upright",
+      "grid": "3 across, 3 down",
+      "sub": "3 across, 3 down. A tight fit on A4."
+    }
   },
   "setup": {
     "title": "Where your cards live, and how they lie on the glass"
@@ -27,5 +43,52 @@
   "offline": {
     "title": "cropdeck is not running",
     "body": "Start it again with cropdeck ui, then reload this window."
+  },
+  "badge": {
+    "waiting": "Waiting",
+    "working": "Working",
+    "done": "Done",
+    "skipped": "Skipped",
+    "stopped": "Stopped",
+    "needs-backs": "Needs backs",
+    "ready": "Ready",
+    "check": "Check",
+    "unread": "Couldn’t read",
+    "filled": "Filled in",
+    "accepted": "Accepted",
+    "scanned": "Scanned",
+    "listed": "Listed",
+    "sold": "Sold",
+    "shipped": "Shipped",
+    "keeping": "Keeping"
+  },
+  "tray": {
+    "title": "Tray {n}",
+    "cards": "Cards {first}–{last}",
+    "written": "Front left, back right. Written to cards\\ at {time}.",
+    "review_these": "Review these {n}"
+  },
+  "field": {
+    "unsure": "unsure",
+    "fixed": "Fixed"
+  },
+  "components": {
+    "title": "Components",
+    "intro": "Each one built from the tokens only. Spec line under every block.",
+    "buttons": "Buttons",
+    "badges": "Status badge",
+    "pairs": "Pair card",
+    "trays": "Tray result row",
+    "table": "Table row",
+    "fields": "Fields",
+    "glass": "Layout picker glass drawings",
+    "progress": "Progress",
+    "keys": "Keys",
+    "group_tray": "Tray",
+    "group_review": "Review",
+    "group_tracker": "Tracker",
+    "default": "Default",
+    "selected": "Selected",
+    "needs_look": "Needs a look"
   }
 }

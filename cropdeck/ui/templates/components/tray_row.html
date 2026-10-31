@@ -1,0 +1,19 @@
+{#- Tray result row (design: Components > Tray result row). The badge kind sets the border too:
+    amber while working, problem when stopped. A done tray shows either a strip of its fronts
+    (collapsed) or its pairs (the latest one, expanded). -#}
+{% from "components/badge.html" import badge %}
+{% from "components/pair.html" import pair %}
+{% macro tray_row(title, meta, kind, strip=None, pairs=None, time=None, review_href=None) -%}
+<article class="tray-row" data-kind="{{ kind }}">
+  <div class="tray-head">
+    <span class="tray-title">{{ title }}</span>
+    <span class="tray-meta num">{{ meta }}</span>
+    {%- if strip %}<span class="strip" aria-hidden="true">{% for src in strip %}<img src="{{ src }}" alt="" loading="lazy" width="12" height="17">{% endfor %}</span>{% endif %}
+    {{ badge(kind) }}
+  </div>
+  {%- if pairs %}
+  <div class="tray-pairs">{% for p in pairs %}{{ pair(p.number, p.front, p.back) }}{% endfor %}</div>
+  <p class="tray-note">{{ t("tray.written", time=time) }}{% if review_href %} <a href="{{ review_href }}">{{ t("tray.review_these", n=pairs|length) }}</a>{% endif %}</p>
+  {%- endif %}
+</article>
+{%- endmacro %}

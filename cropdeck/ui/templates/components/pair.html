@@ -1,0 +1,11 @@
+{#- Pair card (design: Components > Pair card): a card's front left of its own back, both 63:88.
+    state: default | selected | needs-look. Thumbnails load lazily - grids hold up to 40 a page. -#}
+{% macro pair(number, front_src, back_src, state="default") -%}
+<figure class="pair" data-state="{{ state }}">
+  <figcaption><span class="num">{{ number }}</span><span class="dot" aria-hidden="true"></span></figcaption>
+  <span class="sides">
+    <img src="{{ front_src }}" alt="{{ number }} front" loading="lazy" width="63" height="88">
+    <img src="{{ back_src }}" alt="{{ number }} back" loading="lazy" width="63" height="88">
+  </span>
+</figure>
+{%- endmacro %}
