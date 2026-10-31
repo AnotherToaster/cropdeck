@@ -1,0 +1,113 @@
+/* The scan loop (design: 2 Scan loop). Tokens only, as in app.css. */
+
+.scan-loop { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-32); }
+.scan-main { display: flex; flex: 999 1 640px; flex-direction: column; gap: 28px; min-width: 0; }
+.muted { color: var(--muted); }
+
+/* ---- the next-step panel ---------------------------------------------------------------- */
+.next-step {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-32);
+  padding: var(--space-32);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--panel);
+}
+.next-step[data-layout="row"] { align-items: center; gap: var(--space-24); }
+.next-step[data-layout="column"] { flex-direction: column; gap: 20px; }
+.next-step[data-tone="problem"] { padding: 28px var(--space-32); border-color: var(--problem); background: var(--problem-soft); }
+.grow { flex: 1 1 380px; }
+.next-body { display: flex; flex: 1 1 360px; flex-direction: column; gap: 18px; }
+.next-body > p { max-width: 560px; }
+.next-head { display: flex; flex-direction: column; gap: 6px; }
+.next-head h1 { font-size: var(--fs-display); line-height: var(--lh-display); font-weight: 700; letter-spacing: -0.01em; }
+.next-step[data-tone="problem"] h1 { font-size: 26px; line-height: 34px; }
+.eyebrow { display: flex; align-items: center; gap: var(--space-8); color: var(--teal); font-size: var(--fs-small); font-weight: 600; }
+.eyebrow[data-tone="working"] { color: var(--amber-ink); }
+.eyebrow[data-tone="good"] { color: var(--good-ink); }
+.sub { color: var(--muted); }
+.note { color: var(--muted); font-size: var(--fs-small); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.actions form, .halt form, .tray-actions { margin: 0; }
+
+.glass-figure { display: flex; flex: 0 0 auto; flex-direction: column; align-items: center; gap: var(--space-8); margin: 0; }
+.glass-figure figcaption { color: var(--muted); font-size: var(--fs-label); }
+
+.steps { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0 0 0 20px; }
+
+.path-box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-12) 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--bg);
+}
+.path-box .label { color: var(--muted); font-size: var(--fs-small); }
+.path-box code { font-family: var(--font-mono); font-size: 14px; word-break: break-all; }
+.path-box .btn { margin-left: auto; }
+
+.received { display: flex; align-items: center; gap: var(--space-8); color: var(--muted); font-size: var(--fs-small); }
+.received .dot, .watching .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); }
+
+.stopped-text { display: flex; align-items: flex-start; gap: var(--space-16); }
+.stop-mark { flex: none; margin-top: var(--space-4); color: var(--problem); }
+
+/* ---- the run: head, progress, the current tray's slots ---------------------------------- */
+.run-top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-16); }
+/* one slot per card of the tray, in a flex row: flex resolves each slot's width before its height,
+   which the thumbnails' aspect ratio needs (grid tracks sized by content let it collapse) */
+.slots { display: flex; gap: var(--space-12); }
+.slot { display: flex; flex: 1 1 0; flex-direction: column; gap: 6px; min-width: 0; }
+.slot .sides { display: flex; gap: 3px; }
+.slot .sides > * { flex: 1 1 0; min-width: 0; aspect-ratio: 63 / 88; border-radius: 3px; }
+.slot .sides img { display: block; width: 100%; height: auto; object-fit: cover; background: var(--wait-bg); }
+.slot .sides span { border: 1.5px dashed var(--line); }
+.slot[data-state="working"] .sides span { border: 2px solid var(--amber); background: var(--amber-soft); }
+.slot .num { color: var(--muted); font-size: var(--fs-label); font-weight: 600; }
+.slot[data-state="working"] .num { color: var(--amber-ink); }
+
+/* ---- the trays list --------------------------------------------------------------------- */
+.trays { display: flex; flex-direction: column; gap: var(--space-12); }
+.trays-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-12); }
+.trays-head h2 { font-size: var(--fs-heading); line-height: var(--lh-heading); font-weight: 600; }
+.trays-head .muted { font-size: var(--fs-small); }
+.tray-actions { margin-top: var(--space-12); }
+.pager { display: flex; align-items: center; justify-content: center; gap: var(--space-16); min-height: var(--target); }
+
+/* ---- the sidebar ------------------------------------------------------------------------ */
+.scan-side { display: flex; flex: 1 1 300px; flex-direction: column; gap: var(--space-16); min-width: 0; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--line);
+}
+.stats > div { display: flex; flex-direction: column; gap: 2px; padding: var(--space-16) 18px; background: var(--panel); }
+.stats .label, .side-path .label { color: var(--muted); font-size: var(--fs-small); }
+.stats .value { font-size: 28px; line-height: 36px; font-weight: 700; }
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--panel);
+}
+.watching { display: flex; align-items: center; gap: var(--space-8); font-size: 14px; font-weight: 600; }
+.watching .dot { background: var(--teal); }
+.side-path { display: flex; flex-direction: column; gap: var(--space-4); }
+.side-path code { font-family: var(--font-mono); font-size: var(--fs-small); word-break: break-all; }
+.side-layout { display: flex; align-items: center; gap: 14px; }
+.side-layout > div { display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.side-layout .muted, .side-layout a { font-size: var(--fs-small); }
+.side-layout a { font-weight: 600; text-decoration: none; }
+.side-note { padding: 0 var(--space-4); color: var(--muted); font-size: var(--fs-small); line-height: 19px; }
+

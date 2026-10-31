@@ -1,0 +1,210 @@
+{#- The scan loop's parts (design: 2 Scan loop). Each part has an id and is swapped on its own when
+    an event arrives (oob=True marks it for htmx's out-of-band swap). The server decides the state;
+    these only lay it out. v is a scan_view.View. -#}
+{% from "components/button.html" import button %}
+{% from "components/badge.html" import badge %}
+{% from "components/glass.html" import glass %}
+{% from "components/icons.html" import icon %}
+{% from "components/progress.html" import progress %}
+{% from "components/tray_row.html" import tray_row %}
+
+{% macro no(n) %}{{ "%04d" % (n | int) }}{% endmacro %}
+{% macro oob_attr(oob) %}{% if oob %} hx-swap-oob="true"{% endif %}{% endmacro %}
+
+{% macro process_form(label_reason=None) -%}
+{%- if label_reason -%}
+{{ button(t("scan.process"), disabled_reason=label_reason) }}
+{%- else -%}
+<form method="post" action="/process" hx-post="/process" hx-swap="none">{{ button(t("scan.process"), "primary", icon_name="play", type="submit", size="large") }}</form>
+{%- endif -%}
+{%- endmacro %}
+
+{% macro path_box(v) -%}
+<div class="path-box">
+  <span class="label">{{ t("scan.save_to") }}</span>
+  <code>{{ v.scans }}</code>
+  <button class="btn" type="button" data-kind="secondary" data-size="small" data-copy="{{ v.scans }}" data-copied="{{ t('scan.copied') }}">{{ icon("copy", 16) }}<span>{{ t("scan.copy") }}</span></button>
+</div>
+{%- endmacro %}
+
+{#- ---- the next-step panel: exactly one, by state ---- -#}
+{% macro next_step(v, oob=False) -%}
+{%- if v.state == "empty" -%}
+<section id="next-step" class="next-step" aria-label="{{ t('scan.next_step') }}"{{ oob_attr(oob) }}>
+  <figure class="glass-figure">{{ glass(v.layout, 150, numbered=True, dashed=True) }}<figcaption>{{ t("scan.glass_caption") }}</figcaption></figure>
+  <div class="next-body">
+    <div class="next-head"><span class="eyebrow">{{ t("scan.next_step") }}</span><h1>{{ t("scan.fronts_title", n=1) }}</h1></div>
+    <ol class="steps">
+      <li>{{ t("scan.step_lay", name=t("layouts." ~ v.layout.id ~ ".name"), grid=t("layouts." ~ v.layout.id ~ ".grid")) }}</li>
+      <li>{{ t("scan.step_scan") }}</li>
+      <li>{{ t("scan.step_wait") }}</li>
+    </ol>
+    {{ path_box(v) }}
+    <div class="actions">{{ process_form(t("scan.no_scans")) }}</div>
+  </div>
+</section>
+{%- elif v.state == "flip" -%}
+{%- set f = v.focus -%}
+<section id="next-step" class="next-step" aria-label="{{ t('scan.next_step') }}"{{ oob_attr(oob) }}>
+  <figure class="glass-figure">{{ glass(v.layout, 150, backs=True) }}<figcaption>{{ t("scan.flip_caption") }}</figcaption></figure>
+  <div class="next-body">
+    {%- if f.awaiting %}
+    <div class="next-head"><span class="eyebrow">{{ t("scan.next_step") }}</span><h1>{{ t("scan.rescan_title", n=f.n) }}</h1></div>
+    <p>{{ t("scan.rescan_body") }}</p>
+    <div class="actions">{{ process_form(t("scan.waiting_rescan")) }}</div>
+    {%- else %}
+    <div class="next-head"><span class="eyebrow">{{ t("scan.next_step") }}</span><h1>{{ t("scan.flip_title", n=f.n) }}</h1></div>
+    <p>{{ t("scan.flip_body") }}</p>
+    <p class="received"><span class="dot" aria-hidden="true"></span>{{ t("scan.fronts_in", file=f.front.name, time=v.focus_time) }}</p>
+    <div class="actions">{{ process_form(t("scan.waiting_backs", n=f.n)) }}</div>
+    {%- endif %}
+  </div>
+</section>
+{%- elif v.state == "ready" -%}
+{%- set first, last = v.ready[0].n, v.ready[-1].n -%}
+{%- set lo, hi = v.next_card, v.next_card + v.ready | length * v.expected - 1 -%}
+<section id="next-step" class="next-step" data-layout="row" aria-label="{{ t('scan.next_step') }}"{{ oob_attr(oob) }}>
+  <div class="next-head grow">
+    <span class="eyebrow">{{ t("scan.next_step") }}</span>
+    <h1>{{ t("scan.ready_one") if v.ready | length == 1 else t("scan.ready_many", n=v.ready | length) }}</h1>
+    <p class="sub num">{{ t("scan.ready_sub_one", first=first, lo=no(lo), hi=no(hi)) if first == last else t("scan.ready_sub_many", first=first, last=last, lo=no(lo), hi=no(hi)) }}</p>
+  </div>
+  {{ process_form() }}
+</section>
+{%- elif v.state == "processing" -%}
+<section id="next-step" class="next-step" data-layout="column" aria-label="{{ t('scan.working') }}" aria-live="polite"{{ oob_attr(oob) }}>
+  <div class="run-top">
+    {{ run_head(v) }}
+    {{ halt_control(v) }}
+  </div>
+  {{ run_progress(v) }}
+  {{ slots(v) }}
+  <p class="note">{{ t("scan.run_note") }}</p>
+</section>
+{%- elif v.state == "stopped" -%}
+{%- set f = v.focus -%}
+<section id="next-step" class="next-step" data-layout="row" data-tone="problem" role="alert" aria-label="{{ t('badge.stopped') }}"{{ oob_attr(oob) }}>
+  <div class="stopped-text grow">
+    <span class="stop-mark">{{ icon("stop", 28) }}</span>
+    <div class="next-head"><h1>{{ t("stop.title." ~ f.stop.kind, n=f.n, **(f.stop.detail or {})) }}</h1><p>{{ t("scan.stopped_body") }}</p></div>
+  </div>
+  <div class="actions">
+    {{ button(t("scan.fix", n=f.n), "primary", href="/tray/" ~ f.n ~ "/stop") }}
+    <form method="post" action="/tray/{{ f.n }}/skip" hx-post="/tray/{{ f.n }}/skip" hx-swap="none">{{ button(t("scan.skip", n=f.n), type="submit") }}</form>
+  </div>
+</section>
+{%- else -%}
+{%- set done = v.trays | selectattr("status", "equalto", "done") | list -%}
+<section id="next-step" class="next-step" data-layout="row" aria-label="{{ t('scan.next_step') }}"{{ oob_attr(oob) }}>
+  <div class="next-head grow">
+    <span class="eyebrow" data-tone="good">{{ icon("check", 16) }}{{ t("scan.done_one") if done | length == 1 else t("scan.done_many", n=done | length) }}</span>
+    <h1>{{ t("scan.fronts_title", n=v.trays | length + 1) }}</h1>
+    <p class="sub num">{{ t("scan.done_sub", card=no(v.next_card)) }}</p>
+  </div>
+  <div class="actions">
+    {%- if v.cards_so_far %}{{ button(t("scan.review", n=v.cards_so_far), href="/review") }}{% endif %}
+    {{ button(t("scan.no_new"), disabled=True) }}
+  </div>
+</section>
+{%- endif -%}
+{%- endmacro %}
+
+{% macro run_head(v, oob=False) -%}
+{%- set p = v.progress -%}
+<div id="run-head" class="next-head"{{ oob_attr(oob) }}>
+  <span class="eyebrow" data-tone="working">{{ t("scan.working") }}</span>
+  <h1 class="num">{{ t("scan.run_title", n=p.tray, last=p.trays[-1], card=no(v.next_card)) }}</h1>
+</div>
+{%- endmacro %}
+
+{% macro halt_control(v, oob=False) -%}
+<div id="halt" class="halt"{{ oob_attr(oob) }}>
+{%- if v.progress.halt -%}
+  {{ button(t("scan.stop_after"), disabled_reason=t("scan.stopping")) }}
+{%- else -%}
+  <form method="post" action="/stop-after" hx-post="/stop-after" hx-swap="none">{{ button(t("scan.stop_after"), type="submit") }}</form>
+{%- endif -%}
+</div>
+{%- endmacro %}
+
+{% macro run_progress(v, oob=False) -%}
+<div id="run-progress"{{ oob_attr(oob) }}>{{ progress(v.segments, v.progress.current, v.progress.trays | length, t("scan.progress_label")) }}</div>
+{%- endmacro %}
+
+{% macro slots(v, oob=False) -%}
+<div id="slots" class="slots"{{ oob_attr(oob) }}>
+  {%- for s in v.slots %}
+  <div class="slot" data-state="{{ s.state }}">
+    {%- if s.state == "done" %}
+    <span class="sides"><img src="{{ s.front }}" alt="{{ s.number }} front" width="63" height="88"><img src="{{ s.back }}" alt="{{ s.number }} back" width="63" height="88"></span>
+    {%- else %}
+    <span class="sides" aria-hidden="true"><span></span><span></span></span>
+    {%- endif %}
+    <span class="num">{{ s.number }}</span>
+  </div>
+  {%- endfor %}
+</div>
+{%- endmacro %}
+
+{#- ---- the trays list ---- -#}
+{% macro trays(v, oob=False) -%}
+<section id="trays" class="trays" aria-label="{{ t('scan.trays') }}"{{ oob_attr(oob) }}>
+{%- if v.rows %}
+  <div class="trays-head"><h2>{{ t("scan.trays") }}</h2><span class="muted">{{ t("scan.newest_first") }}</span></div>
+  {%- for r in v.rows %}
+  {%- set tr = r.tray %}
+  {%- set scans = t("tray.scans", front=tr.front.name, back=tr.back.name) if tr.back else t("tray.front_only", front=tr.front.name) %}
+  {%- set meta = scans ~ (" · " ~ t("tray.cards", first=no(tr.cards[0]), last=no(tr.cards[1])) if tr.cards else "") %}
+  {%- if r.pairs %}
+  {{ tray_row(t("tray.title", n=tr.n), meta, "done", pairs=r.pairs, time=r.time, review_href="/review") }}
+  {%- else %}
+  <article class="tray-row" data-kind="{{ r.kind }}">
+    <div class="tray-head">
+      <span class="tray-title">{{ t("tray.title", n=tr.n) }}</span>
+      <span class="tray-meta num">{{ meta }}</span>
+      {%- if r.strip %}<span class="strip" aria-hidden="true">{% for src in r.strip %}<img src="{{ src }}" alt="" loading="lazy" width="12" height="17">{% endfor %}</span>{% endif %}
+      {{ badge(r.kind) }}
+    </div>
+    {%- if r.note %}<p class="tray-note">{{ t(r.note, **(r.note_values or {})) }}</p>{% endif %}
+    {%- if r.kind == "stopped" %}<div class="tray-actions">{{ button(t("tray.see_problem"), href="/tray/" ~ tr.n ~ "/stop") }}</div>{% endif %}
+    {%- if r.kind == "skipped" %}<form class="tray-actions" method="post" action="/tray/{{ tr.n }}/unskip" hx-post="/tray/{{ tr.n }}/unskip" hx-swap="none">{{ button(t("tray.unskip"), "quiet", type="submit") }}</form>{% endif %}
+  </article>
+  {%- endif %}
+  {%- endfor %}
+  {%- if v.pages > 1 %}
+  <nav class="pager" aria-label="{{ t('scan.trays') }}">
+    {%- if v.page > 1 %}<a href="/?page={{ v.page - 1 }}">{{ t("scan.newer") }}</a>{% endif %}
+    <span class="muted num">{{ t("scan.page_of", page=v.page, pages=v.pages) }}</span>
+    {%- if v.page < v.pages %}<a href="/?page={{ v.page + 1 }}">{{ t("scan.older") }}</a>{% endif %}
+  </nav>
+  {%- endif %}
+{%- endif %}
+</section>
+{%- endmacro %}
+
+{#- ---- the sidebar ---- -#}
+{% macro stats(v, oob=False) -%}
+<section id="stats" class="stats"{{ oob_attr(oob) }}>
+  <div><span class="label">{{ t("scan.cards_so_far") }}</span><span class="value num">{{ v.cards_so_far }}</span></div>
+  <div><span class="label">{{ t("scan.next_card") }}</span><span class="value num">{{ no(v.next_card) }}</span></div>
+</section>
+{%- endmacro %}
+
+{% macro sidebar(v) -%}
+<aside class="scan-side" aria-label="{{ t('chip.folder') }}">
+  {{ stats(v) }}
+  <section class="side-panel">
+    <p class="watching"><span class="dot" aria-hidden="true"></span>{{ t("scan.watching") }}</p>
+    <div class="side-path"><span class="label">{{ t("scan.scanner_saves") }}</span><code>{{ v.scans }}</code></div>
+    <div class="side-layout">
+      {{ glass(v.layout, 52, selected=True, numbered=False) }}
+      <div>
+        <strong>{{ t("layouts." ~ v.layout.id ~ ".name") }}</strong>
+        <span class="muted">{{ t("layouts." ~ v.layout.id ~ ".grid") }}</span>
+        <a href="/settings">{{ t("scan.change_layout") }}</a>
+      </div>
+    </div>
+  </section>
+  <p class="side-note">{{ t("scan.footer") }}</p>
+</aside>
+{%- endmacro %}

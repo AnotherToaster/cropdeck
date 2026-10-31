@@ -43,14 +43,35 @@ def ref_diff(ts, ref):
     return float(np.median([np.abs(t - r).mean() for t in ts]))
 
 
-def check_backs(f_th, b_th, ref):
-    """Return None if the pair looks right, else a sentence explaining what's wrong."""
+def back_refs(state: dict) -> list:
+    """Every back design known in this folder. Folders from before 0.3 kept one, as back_ref."""
+    if "back_refs" not in state and "back_ref" in state:
+        state["back_refs"] = [state.pop("back_ref")]
+    return state.setdefault("back_refs", [])
+
+
+def learn_back(state: dict, b_th) -> None:
+    """Remember this tray's backs as a back design of the folder."""
+    if b_th:
+        back_refs(state).append(np.median(np.stack(b_th), axis=0).tolist())
+
+
+def check_backs(f_th, b_th, refs):
+    """
+    None if the pair looks right, else (kind, sentence): kind is "notbacks" when the second
+    scan does not show card backs, "swapped" when the first scan looks more like backs than the
+    second. refs are the back designs known in the folder; the closest one is compared against.
+    """
+    ref = min(refs, key=lambda r: ref_diff(b_th, r) or 0.0) if refs and b_th else None
     fd, bd = ref_diff(f_th, ref), ref_diff(b_th, ref)
     if fd is not None and bd is not None:
         if bd > BACK_MATCH_LIMIT and fd > BACK_MATCH_LIMIT:
-            return "neither scan looks like card backs - did you scan this tray's backs at all?"
+            return (
+                "notbacks",
+                "neither scan looks like card backs - did you scan this tray's backs at all?",
+            )
         if fd < bd:
-            return "these two look swapped - the FRONTS scan appears to hold the backs"
+            return "swapped", "these two look swapped - the FRONTS scan appears to hold the backs"
         return None
     # First tray ever, no reference to compare against. Fall back on the fact that
     # card backs are all the same picture: measured, backs score ~15 here and fronts
@@ -58,13 +79,15 @@ def check_backs(f_th, b_th, ref):
     sf, sb = self_diff(f_th), self_diff(b_th)
     if sb > BACK_UNIFORM_LIMIT:
         return (
+            "notbacks",
             f"the second scan's cards don't look alike enough to be card backs "
             f"(scored {sb:.0f}, backs normally score under {BACK_UNIFORM_LIMIT:.0f}) "
-            f"- is it really the backs?"
+            f"- is it really the backs?",
         )
     if sb > sf:
         return (
+            "swapped",
             "the second scan is less uniform than the first - backs should all "
-            "look alike, so these may be swapped"
+            "look alike, so these may be swapped",
         )
     return None

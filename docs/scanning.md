@@ -60,8 +60,8 @@ machine checks can be fooled, your eye on a scuffed corner cannot.
 
 ## When it stops
 
-Backs are identical, so a mispaired tray would be invisible. The run therefore **stops before
-writing anything** — and skips every later tray too — when:
+Backs are identical, so a mispaired tray would be invisible. The run therefore **stops at that tray
+without writing anything for it** - every later tray waits - when:
 
 1. a front scan and its back scan hold a different number of cards;
 2. the "backs" scan does not look like backs (you skipped a tray's backs, and every later tray
@@ -72,9 +72,13 @@ writing anything** — and skips every later tray too — when:
 ! STOPPED on tray_0005.jpg / tray_0006.jpg: neither scan looks like card backs -
   did you scan this tray's backs at all?
   Nothing was written for this tray, and no later tray was touched either.
+    Fix the scans and run again (or --no-back-check to force it through), or choose a fix in `cropdeck ui`.
 ```
 
-Fix the scans and run again.
+Fix the scans and run again. Or open `cropdeck ui`: its guard-stop page shows both scans with what
+was found, and offers fixes - rescan the backs, write only the cards that have both sides, swap the
+two scans, learn a second back design - without touching the scan files
+([how-it-works.md](how-it-works.md#fixes-for-a-stopped-tray)).
 
 ## Troubleshooting
 

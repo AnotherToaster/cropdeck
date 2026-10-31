@@ -128,15 +128,18 @@ class Split(unittest.TestCase):
         self.assertEqual(r.returncode, 1)
         self.assertEqual(list(self.out.glob("card_*.png")), [])
 
-    def test_a_skipped_tray_is_named_not_reported_as_done(self):
+    def test_a_tray_whose_counts_differ_stops_and_later_trays_wait(self):
         f, _, _ = synth.tray(0, layout="s8")  # 8 fronts ...
         _, b, _ = synth.tray(0, layout="s6")  # ... but only 6 backs
-        write_trays(self.scans, [(f, b)])
+        f2, b2, _ = synth.tray(1)
+        write_trays(self.scans, [(f, b), (f2, b2)])
         r = self.split()
         self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
-        self.assertIn("Nothing written for 1 tray(s)", r.stdout)
-        self.assertIn("tray_0001.png / tray_0002.png", r.stdout)
+        self.assertIn("STOPPED on tray_0001.png / tray_0002.png", r.stdout)
         self.assertNotIn("nothing new", r.stdout)
+        self.assertEqual(list(self.out.glob("card_*.png")), [])  # tray 2 was not touched
+        r = self.split()  # still refused on the next run, until it is fixed
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
         self.assertEqual(list(self.out.glob("card_*.png")), [])
 
     def test_white_and_dark_backing_both_work(self):

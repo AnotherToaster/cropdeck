@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{#- A guard stop (handoff phase 4; design: 3 Guard stop). s is a stop_view.StopView: both scans with
+    the detected cards outlined, the fixes for this kind of stop, the trays waiting behind it. -#}
+{% from "components/badge.html" import badge %}
+{% from "components/button.html" import button %}
+{% from "components/icons.html" import icon %}
+{% set n = s.tray.n %}
+{% set front = s.tray.front.name %}
+{% set back = s.tray.back.name if s.tray.back else "" %}
+{% block title %}{{ t("stop.banner", n=n) }} · {{ t("app.name") }}{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="/static/css/stop.css">{% endblock %}
+{% block content %}
+<div class="guard">
+  <a class="back-link" href="/">{{ icon("back", 16) }}{{ t("stop.back") }}</a>
+
+  <section class="guard-banner" role="alert">
+    <span class="stop-mark">{{ icon("stop", 28) }}</span>
+    <div>
+      <span class="banner-label">{{ t("stop.banner", n=n) }}</span>
+      <h1>{{ t("stop.title." ~ s.kind, n=n, **s.detail) }}</h1>
+      {%- set key, values = s.why %}
+      <p>{{ t(key, **values) }}</p>
+    </div>
+  </section>
+
+  <div class="guard-body">
+    {%- if s.figures %}
+    <div class="guard-scans">
+      {%- for f in s.figures %}
+      <figure class="scan-figure">
+        <figcaption><span class="scan-title">{{ t("stop.scan." ~ f.side) }}</span><span class="muted num">{{ f.file }}</span></figcaption>
+        <svg class="scan-image" viewBox="0 0 {{ f.width }} {{ f.height }}" role="img" aria-label="{{ t('stop.scan.' ~ f.side) }}: {{ f.file }}">
+          <image href="/tray/{{ n }}/scan/{{ f.side }}.jpg" width="{{ f.width }}" height="{{ f.height }}"/>
+          {%- set size = (f.width / 28) | round | int %}
+          {%- for sh in f.shapes %}
+          <g class="shape" data-kind="{{ sh.kind }}">
+            <polygon points="{{ sh.points }}" stroke-width="{{ (size / 4) | round | int }}"/>
+            <text x="{{ sh.x + size / 3 }}" y="{{ sh.y + size * 1.1 }}" font-size="{{ size }}">{{ sh.label }}</text>
+          </g>
+          {%- endfor %}
+        </svg>
+        <p class="found"><span class="dot" aria-hidden="true"></span>{{ t("stop.found", n=f.found) }}</p>
+      </figure>
+      {%- endfor %}
+    </div>
+    {%- endif %}
+
+    <section class="guard-fixes" aria-label="{{ t('stop.how') }}">
+      <h2>{{ t("stop.how") }}</h2>
+      {%- for action in s.fixes %}
+      <form class="fix" method="post" action="/tray/{{ n }}/fix/{{ action }}">
+        {{ button(t("stop.fix." ~ action ~ ".label", pairs=s.pairs), "primary" if loop.first else "secondary", type="submit") }}
+        <p>{{ t("stop.fix." ~ action ~ ".desc", n=n, front=front, back=back) }}</p>
+      </form>
+      {%- endfor %}
+      <form method="post" action="/tray/{{ n }}/fix/skip">{{ button(t("stop.skip", n=n), "quiet", type="submit") }}</form>
+      <p class="untouched">{{ t("stop.untouched", front=front, back=back) }}</p>
+    </section>
+  </div>
+
+  {%- if s.waiting %}
+  <section class="guard-waiting" aria-label="{{ t('stop.waiting', n=n) }}">
+    <span>{{ t("stop.waiting", n=n) }}</span>
+    {%- for w in s.waiting %}{{ badge("waiting", t("tray.title", n=w)) }}{% endfor %}
+    <span class="muted">{{ t("stop.waiting_after", n=n) }}</span>
+  </section>
+  {%- endif %}
+</div>
+{% endblock %}

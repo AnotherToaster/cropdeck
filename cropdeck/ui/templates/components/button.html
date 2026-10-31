@@ -1,14 +1,18 @@
 {#- Buttons (design: Components > Buttons). kind: primary | secondary | quiet. One primary per view.
-    With href it is a link that looks like a button. A disabled button always says why, beside it. -#}
+    With href it is a link that looks like a button. A disabled button says why beside it
+    (disabled_reason), unless its own label already does (disabled). size: large | small. -#}
 {% from "components/icons.html" import icon %}
-{% macro button(label, kind="secondary", href=None, icon_name=None, disabled_reason=None, type="button", attrs="") -%}
+{% macro button(label, kind="secondary", href=None, icon_name=None, disabled_reason=None, type="button", attrs="", disabled=False, size=None) -%}
+{%- set size_attr %}{% if size %} data-size="{{ size }}"{% endif %}{% endset -%}
 {%- set inner %}{% if icon_name %}{{ icon(icon_name, 18) }}{% endif %}<span>{{ label }}</span>{% endset -%}
 {%- if disabled_reason -%}
 <span class="btn-with-reason"><button class="btn" type="{{ type }}" data-kind="disabled" disabled>{{ inner }}</button><span class="reason">{{ disabled_reason }}</span></span>
+{%- elif disabled -%}
+<button class="btn" type="{{ type }}" data-kind="disabled" disabled>{{ inner }}</button>
 {%- elif href -%}
-<a class="btn" data-kind="{{ kind }}" href="{{ href }}" {{ attrs }}>{{ inner }}</a>
+<a class="btn" data-kind="{{ kind }}"{{ size_attr }} href="{{ href }}" {{ attrs }}>{{ inner }}</a>
 {%- else -%}
-<button class="btn" type="{{ type }}" data-kind="{{ kind }}" {{ attrs }}>{{ inner }}</button>
+<button class="btn" type="{{ type }}" data-kind="{{ kind }}"{{ size_attr }} {{ attrs }}>{{ inner }}</button>
 {%- endif -%}
 {%- endmacro %}
 

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{#- The scan loop (handoff phase 3). Every part listens to the server's events and is swapped
+    out of band when one arrives; the listener itself swaps nothing. -#}
+{% import "partials/scan.html" as parts %}
+{% block title %}{{ t("scan.title") }} · {{ t("app.name") }}{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="/static/css/scan.css">{% endblock %}
+{% block content %}
+<div class="scan-loop" hx-ext="sse" sse-connect="/events?page={{ v.page }}">
+  <div hidden sse-swap="scans-changed,run-start,run-halting,run-done,tray-start,tray-done,tray-stopped,card-done" hx-swap="none"></div>
+  <div class="scan-main">
+    {{ parts.next_step(v) }}
+    {{ parts.trays(v) }}
+  </div>
+  {{ parts.sidebar(v) }}
+</div>
+<script src="/static/js/app.js"></script>
+{% endblock %}
