@@ -5,6 +5,7 @@
 {% from "components/badge.html" import badge %}
 {% from "components/glass.html" import glass %}
 {% from "components/icons.html" import icon %}
+{% from "components/pager.html" import pager %}
 {% from "components/path_box.html" import path_box %}
 {% from "components/progress.html" import progress %}
 {% from "components/tray_row.html" import tray_row %}
@@ -165,11 +166,7 @@
   {%- endif %}
   {%- endfor %}
   {%- if v.pages > 1 %}
-  <nav class="pager" aria-label="{{ t('scan.trays') }}">
-    {%- if v.page > 1 %}<a href="/?page={{ v.page - 1 }}">{{ t("scan.newer") }}</a>{% endif %}
-    <span class="muted num">{{ t("scan.page_of", page=v.page, pages=v.pages) }}</span>
-    {%- if v.page < v.pages %}<a href="/?page={{ v.page + 1 }}">{{ t("scan.older") }}</a>{% endif %}
-  </nav>
+  {{ pager(v.page, v.pages, "/?page=", t("scan.trays"), t("scan.newer"), t("scan.older")) }}
   {%- endif %}
 {%- endif %}
 </section>

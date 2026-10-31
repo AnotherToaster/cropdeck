@@ -1,0 +1,73 @@
+/* The review (design: 4 Review). Tokens only, as in app.css. */
+
+.review { display: flex; flex-direction: column; gap: 20px; }
+.review-top { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-16) var(--space-24); }
+.review-title { display: flex; flex-direction: column; gap: var(--space-4); }
+.review-counts { margin: 0; color: var(--muted); }
+.review-counts strong { color: var(--amber-ink); }
+
+/* view filter: links that look like a segmented control */
+.segmented { display: flex; padding: 3px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.segmented a {
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: var(--radius-control);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.segmented a[aria-current="true"] { background: var(--bg); color: var(--text); box-shadow: var(--shadow); }
+
+.keys { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-8) 14px; margin-left: auto; color: var(--muted); font-size: 13px; }
+.keys > span { display: flex; align-items: center; gap: 6px; }
+
+.review-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: var(--space-16); }
+.review-card { border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--bg); outline: none; }
+.review-card[data-status="check"], .review-card[data-status="unread"] { border: 2px solid var(--amber); }
+.review-card[data-selected] { border: 2px solid var(--teal); box-shadow: 0 0 0 4px var(--teal-soft); }
+.review-card form { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: var(--space-16); }
+.review-head { display: flex; align-items: center; gap: 10px; }
+.review-no { font-size: 17px; font-weight: 700; }
+.review-head .icon-button { width: 36px; height: 36px; margin-left: auto; }
+.review-card .sides { display: flex; gap: var(--space-8); }
+.review-card .sides img, .review-card .no-back {
+  flex: 1;
+  width: 0;
+  height: auto;
+  aspect-ratio: 63 / 88;
+  object-fit: cover;
+  border-radius: 5px;
+  background: var(--wait-bg);
+  box-shadow: var(--shadow);
+}
+.review-card .no-back { border: 1px dashed var(--line); box-shadow: none; }
+.review-note { margin: 0; color: var(--amber-ink); font-size: 13px; line-height: 18px; }
+.review-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.review-fields .field[data-field="name"] { grid-column: 1 / -1; }
+.review-fields .field-label { font-size: 12px; }
+.review-fields .field-input { min-height: 38px; padding: 0 10px; font-size: 14px; }
+.review-accept { width: 100%; justify-content: center; min-height: 40px; font-size: 14px; }
+
+/* the true-size view: 63 x 88 CSS mm is the card's real size at 100 % display scaling */
+.true-size {
+  width: min(1000px, calc(100% - 64px));
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--bg);
+  color: var(--text);
+}
+.true-size::backdrop { background: var(--scrim); }
+.true-size-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-12); margin-bottom: 20px; }
+.true-size-head h2 { font-size: var(--fs-title); line-height: var(--lh-title); font-weight: 600; }
+.true-size-head form { margin: 0 0 0 auto; }
+.true-size-cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 32px; padding: 28px; border-radius: var(--radius-panel); background: var(--panel); }
+.true-size-cards figure { display: flex; flex-direction: column; align-items: center; gap: var(--space-8); margin: 0; }
+.true-size-cards img { width: 63mm; height: 88mm; object-fit: cover; border-radius: 3mm; background: var(--wait-bg); }
+.true-size-cards img:not([src]) { visibility: hidden; }
+.true-size-cards figcaption { color: var(--muted); font-size: 13px; }
+.true-size-foot { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-12); margin-top: 20px; }
+.true-size-foot .actions { display: flex; flex-wrap: wrap; gap: var(--space-8); margin-left: auto; }

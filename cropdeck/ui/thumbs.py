@@ -15,11 +15,12 @@ from ..imageio import imread_unicode, imwrite_unicode, save_params
 
 CACHE = "_thumbs"
 CARD_HEIGHT = 176  # px: 2x the 88 px a card is drawn at, sharp on high-density screens
+LARGE_HEIGHT = 400  # px: the review's cards, about 190 px high, sharp at 2x
 SCAN_EDGE = 900  # px: the long edge of a scan shown on the guard-stop page
 
 
-def thumb_url(name: str) -> str:
-    return f"/thumb/{quote(name)}"
+def thumb_url(name: str, large: bool = False) -> str:
+    return f"/thumb/{quote(name)}" + ("?size=large" if large else "")
 
 
 def _make(src: Path, dst: Path, fit) -> Path | None:
@@ -42,9 +43,10 @@ def _make(src: Path, dst: Path, fit) -> Path | None:
     return dst
 
 
-def card(src: Path, sorted_dir: Path) -> Path | None:
+def card(src: Path, sorted_dir: Path, large: bool = False) -> Path | None:
+    height, suffix = (LARGE_HEIGHT, "@large") if large else (CARD_HEIGHT, "")
     return _make(
-        src, sorted_dir / CACHE / f"{src.stem}.jpg", lambda w, h: min(1.0, CARD_HEIGHT / h)
+        src, sorted_dir / CACHE / f"{src.stem}{suffix}.jpg", lambda w, h: min(1.0, height / h)
     )
 
 

@@ -20,8 +20,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from .. import paths
-from . import i18n, live, session
-from .routes import images, pages, scan, setup, stop
+from . import i18n, live, review_view, session
+from .routes import images, pages, review, scan, setup, stop
 from .runner import Runner
 
 HERE = Path(__file__).resolve().parent
@@ -84,7 +84,7 @@ def create_app(
             lang=i18n.DEFAULT,
             theme=theme if theme in THEMES else None,
             work=work,
-            review_count=0,  # cards that need a look - counted from phase 6 (review)
+            review_count=review_view.needs_look(work.folder),
         )
         return templates.TemplateResponse(request, template, context)
 
@@ -102,5 +102,6 @@ def create_app(
     scan.register(app, render, fragment, work, hub, runner)
     stop.register(app, render, work, hub, runner)
     setup.register(app, render, fragment, work, runner)
+    review.register(app, render, fragment, work)
     images.register(app, work, runner)
     return app

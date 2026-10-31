@@ -1,0 +1,9 @@
+{#- Pages of a long list: the one before, where we are, the one after. href is the link up to the
+    page number ("/?page="). -#}
+{% macro pager(page, pages, href, label, before, after) -%}
+<nav class="pager" aria-label="{{ label }}">
+  {%- if page > 1 %}<a href="{{ href }}{{ page - 1 }}">{{ before }}</a>{% endif %}
+  <span class="muted num">{{ t("pager.page_of", page=page, pages=pages) }}</span>
+  {%- if page < pages %}<a href="{{ href }}{{ page + 1 }}">{{ after }}</a>{% endif %}
+</nav>
+{%- endmacro %}

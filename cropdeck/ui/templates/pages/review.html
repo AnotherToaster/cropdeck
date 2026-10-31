@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{#- The review (handoff phase 6): the cards a page at a time, the ones that need a look first, each
+    with its fields; the keys in static/js/review.js; the true-size view is one dialog filled from
+    the selected card. -#}
+{% import "partials/review.html" as parts %}
+{% from "components/badge.html" import badge %}
+{% from "components/icons.html" import icon %}
+{% from "components/kbd.html" import kbd %}
+{% from "components/pager.html" import pager %}
+{% block title %}{{ t("nav.review") }} · {{ t("app.name") }}{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="/static/css/review.css">
+  <script src="/static/js/review.js" defer></script>{% endblock %}
+{% block content %}
+<div class="review">
+  <div class="review-top">
+    <div class="review-title">
+      <h1 class="page-title">{{ t("nav.review") }}</h1>
+      {{ parts.counts(v.counts) }}
+    </div>
+    <nav class="segmented" aria-label="{{ t('review.show.label') }}">
+      {%- for key in ["look", "order", "accepted"] %}
+      <a href="/review?show={{ key }}"{% if v.show == key %} aria-current="true"{% endif %}>{{ t("review.show." ~ key) }}</a>
+      {%- endfor %}
+    </nav>
+    <div class="keys" aria-label="{{ t('review.keys.label') }}">
+      <span>{{ kbd("J") }}{{ kbd("K") }}{{ t("review.keys.move") }}</span>
+      <span>{{ kbd("Enter") }}{{ t("review.keys.accept") }}</span>
+      <span>{{ kbd("E") }}{{ t("review.keys.edit") }}</span>
+      <span>{{ kbd("Space") }}{{ t("review.keys.size") }}</span>
+    </div>
+  </div>
+
+  {%- if v.cards %}
+  <div class="review-grid">
+    {%- for c in v.cards %}{{ parts.card(c) }}{% endfor %}
+  </div>
+  {%- if v.pages > 1 %}{{ pager(v.page, v.pages, "/review?show=" ~ v.show ~ "&page=", t("nav.review"), t("review.page_before"), t("review.page_after")) }}{% endif %}
+  {%- else %}
+  <p class="muted">{{ t("review.none_accepted" if v.show == "accepted" and v.counts.total else "review.empty") }}</p>
+  {%- endif %}
+</div>
+
+<dialog id="true-size" class="true-size" aria-labelledby="true-size-title">
+  <div class="true-size-head">
+    <h2 id="true-size-title" class="num"></h2>
+    <span class="true-size-badge"></span>
+    <form method="dialog"><button class="icon-button" aria-label="{{ t('review.dialog.close') }}">{{ icon("close", 18) }}</button></form>
+  </div>
+  <div class="true-size-cards">
+    <figure><img data-side="front" alt=""><figcaption>{{ t("review.front") }}</figcaption></figure>
+    <figure><img data-side="back" alt=""><figcaption>{{ t("review.back") }}</figcaption></figure>
+  </div>
+  <div class="true-size-foot">
+    <span class="note">{{ t("review.dialog.note") }}</span>
+    <span class="actions">
+      <button class="btn" type="button" data-kind="secondary" data-go="-1"><span>{{ t("review.dialog.before") }}</span></button>
+      <button class="btn" type="button" data-kind="secondary" data-go="1"><span>{{ t("review.dialog.after") }}</span></button>
+      <button class="btn" type="button" data-kind="primary" data-accept-next><span>{{ t("review.dialog.accept_next") }}</span></button>
+    </span>
+  </div>
+</dialog>
+{% endblock %}

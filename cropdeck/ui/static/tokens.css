@@ -28,6 +28,7 @@
   --panel: #F6F7F9;
   --glass: #EEF1F4;         /* scanner glass drawing (new) */
   --shadow: 0 1px 2px rgba(16, 24, 40, .10);
+  --scrim: rgba(13, 17, 23, .72);  /* behind a dialog, both themes (new) */
 
   /* card-back placeholder pattern (only used where no real image exists yet) */
   --back-a: #46525F;

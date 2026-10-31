@@ -1,4 +1,5 @@
 {%- from "components/icons.html" import icon -%}
+{%- from "components/review_pill.html" import review_pill -%}
 <!doctype html>
 <html lang="{{ lang }}"{% if theme %} data-theme="{{ theme }}"{% endif %}>
 <head>
@@ -22,7 +23,7 @@
       {% for key, href in [("scan", "/"), ("review", "/review"), ("collection", "/collection")] %}
       <a href="{{ href }}"{% if current == key %} aria-current="page"{% endif %}>
         {{- t("nav." ~ key) -}}
-        {% if key == "review" and review_count %}<span class="pill num" aria-label="{{ t('nav.needs_look', n=review_count) }}">{{ review_count }}</span>{% endif %}
+        {% if key == "review" %}{{ review_pill(review_count) }}{% endif %}
       </a>
       {% endfor %}
     </nav>

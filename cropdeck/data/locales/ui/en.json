@@ -209,7 +209,6 @@
     "newest_first": "Newest first",
     "newer": "Newer",
     "older": "Older",
-    "page_of": "Page {page} of {pages}",
     "busy": "A run is going. Wait until it is done."
   },
   "stop": {
@@ -274,5 +273,56 @@
     "waiting": "Waiting for tray {n}:",
     "waiting_after": "They run after tray {n}.",
     "and": "and"
+  },
+  "pager": {
+    "page_of": "Page {page} of {pages}"
+  },
+  "review": {
+    "card": "Card {n}",
+    "cards": "{n} cards",
+    "cards_one": "1 card",
+    "look": "{n} need a look",
+    "look_one": "1 needs a look",
+    "filled": "{n} filled in",
+    "show": {
+      "label": "Show",
+      "look": "Needs a look first",
+      "order": "Card order",
+      "accepted": "Accepted"
+    },
+    "keys": {
+      "label": "Keyboard",
+      "move": "next, previous",
+      "accept": "accept",
+      "edit": "edit",
+      "size": "true size"
+    },
+    "field": {
+      "name": "Name",
+      "number": "Number",
+      "set": "Set",
+      "language": "Language",
+      "variant": "Variant"
+    },
+    "variant_none": "None",
+    "front": "Front",
+    "back": "Back",
+    "no_back": "No back",
+    "note_unread": "Couldn't read the text. Type it in, or open at true size.",
+    "size_label": "Show card {n} at true size",
+    "accept": "Accept",
+    "accepted": "Accepted",
+    "empty": "No cards yet. Scan and process a tray first.",
+    "none_accepted": "None accepted yet.",
+    "page_before": "Previous page",
+    "page_after": "Next page",
+    "dialog": {
+      "title": "Card {n} · {name}",
+      "close": "Close",
+      "note": "True size, 63 × 88 mm, at 100 % display scaling.",
+      "before": "Previous",
+      "after": "Next",
+      "accept_next": "Accept and next"
+    }
   }
 }

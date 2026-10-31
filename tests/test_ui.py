@@ -229,8 +229,9 @@ class Components(unittest.TestCase):
         self.assertIn('data-state="selected"', html)
 
     def test_no_colour_is_hard_coded_outside_the_tokens(self):
-        for f in [*(UI / "templates").rglob("*.html"), UI / "static" / "app.css"]:
-            self.assertNotRegex(f.read_text(), r"#[0-9A-Fa-f]{6}\b", f.name)
+        static = UI / "static"
+        for f in [*(UI / "templates").rglob("*.html"), static / "app.css", *static.glob("css/*")]:
+            self.assertNotRegex(f.read_text(), r"#[0-9A-Fa-f]{6}\b|rgba?\(", f.name)
 
     def test_the_components_page_is_a_dev_tool_only(self):
         self.assertEqual(client().get("/_components").status_code, 404)

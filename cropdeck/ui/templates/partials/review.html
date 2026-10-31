@@ -1,0 +1,55 @@
+{#- The review's parts (design: 4 Review). A card is a form: leaving a field posts that field
+    alone (hx-params), Accept (or Enter in a field) posts them all. The badge, the counts and the
+    nav pill are swapped out of band after an edit. c is a review_view.Card. -#}
+{% from "components/badge.html" import badge %}
+{% from "components/icons.html" import icon %}
+{% from "components/review_pill.html" import review_pill %}
+
+{% macro oob_attr(oob) %}{% if oob %} hx-swap-oob="true"{% endif %}{% endmacro %}
+
+{% macro badge_of(c, oob=False) -%}
+<span id="badge-{{ c.number }}" class="review-badge"{{ oob_attr(oob) }}>{{ badge(c.status) }}</span>
+{%- endmacro %}
+
+{% macro counts(n, oob=False) -%}
+<p id="review-counts" class="review-counts num"{{ oob_attr(oob) }}>
+  {{- t("review.cards_one" if n.total == 1 else "review.cards", n=n.total) }} · <strong>{{ t("review.look_one" if n.look == 1 else "review.look", n=n.look) }}</strong> · {{ t("review.filled", n=n.filled) -}}
+</p>
+{%- endmacro %}
+
+{% macro nav_pill(n, oob=False) -%}{{ review_pill(n.look, oob) }}{%- endmacro %}
+
+{% macro card(c) -%}
+{%- set name = c.values.name -%}
+<article class="review-card" id="card-{{ c.number }}" tabindex="-1" data-status="{{ c.status }}"
+         aria-label="{{ t('review.card', n=c.number) }}"
+         data-title="{{ t('review.dialog.title', n=c.number, name=name) if name else t('review.card', n=c.number) }}"
+         data-front="{{ c.full[0] }}" data-back="{{ c.full[1] }}">
+  <form hx-post="/review/{{ c.number }}/accept" hx-target="closest article" hx-swap="outerHTML">
+    <div class="review-head">
+      <span class="review-no num">{{ c.number }}</span>
+      {{ badge_of(c) }}
+      <button class="icon-button" type="button" data-true-size aria-label="{{ t('review.size_label', n=c.number) }}">{{ icon("expand", 16) }}</button>
+    </div>
+    <span class="sides">
+      <img src="{{ c.front_src }}" alt="{{ t('review.front') }}" loading="lazy" width="63" height="88">
+      {%- if c.back_src %}<img src="{{ c.back_src }}" alt="{{ t('review.back') }}" loading="lazy" width="63" height="88">{% else %}<span class="no-back" role="img" aria-label="{{ t('review.no_back') }}"></span>{% endif %}
+    </span>
+    {%- if c.status == "unread" %}<p class="review-note">{{ t("review.note_unread") }}</p>{% endif %}
+    <div class="review-fields">
+      {%- for f in ["name", "number", "set", "language", "variant"] %}
+      {%- set unsure = f in c.unsure %}
+      <label class="field" data-field="{{ f }}" data-state="{{ 'unsure' if unsure else 'normal' }}">
+        <span class="field-label">{{ t("review.field." ~ f) }}{% if unsure %} <span class="unsure">· {{ t("field.unsure") }}</span>{% endif %}</span>
+        <input class="field-input" type="text" name="{{ f }}" value="{{ c.values[f] }}" autocomplete="off"
+               {%- if f == "variant" %} placeholder="{{ t('review.variant_none') }}"{% endif %}
+               hx-post="/review/{{ c.number }}/field" hx-trigger="change" hx-params="{{ f }}" hx-swap="none">
+      </label>
+      {%- endfor %}
+    </div>
+    <button class="btn review-accept" type="submit" data-kind="{{ 'secondary' if c.status == 'accepted' else 'primary' }}">
+      {%- if c.status == "accepted" %}{{ icon("check", 18) }}<span>{{ t("review.accepted") }}</span>{% else %}<span>{{ t("review.accept") }}</span>{% endif -%}
+    </button>
+  </form>
+</article>
+{%- endmacro %}
