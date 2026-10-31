@@ -9,7 +9,7 @@ The fixes for a tray that was refused. Each one is a choice recorded in the stat
   new_back    the backs are another back design: learn it for the folder and pair
   swap        read the second scan as the fronts and the first as the backs
   keep        take the tray as scanned, without the backs check
-  skip        pass the tray over for now; unskip brings it back
+  skip        pass the tray over for now; unskip brings it back as it was
 """
 
 from __future__ import annotations
@@ -51,7 +51,7 @@ def keep(state: dict, n: int) -> None:
 
 
 def skip(state: dict, n: int) -> None:
-    _fresh(state, n)["skip"] = True
+    choices(state, n)["skip"] = True  # the stop stays: unskip shows why it was refused
 
 
 def unskip(state: dict, n: int) -> None:
