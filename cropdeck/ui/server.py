@@ -33,6 +33,9 @@ from pathlib import Path
 HOST = "127.0.0.1"
 DEFAULT_PORT = 8737
 TRIES = 10  # ports tried upwards from the default before giving up
+# seconds a stop waits for open connections: a page's live-update stream never ends by itself,
+# so without a limit the server would not stop while a browser has it open
+STOP_WAIT = 2
 
 
 def add_arguments(p: argparse.ArgumentParser):
@@ -82,6 +85,8 @@ def running_cropdeck(port: int, host: str = HOST) -> bool:
 def free(port: int, host: str = HOST) -> bool:
     family = socket.AF_INET6 if ":" in host else socket.AF_INET
     with socket.socket(family, socket.SOCK_STREAM) as s:
+        if sys.platform != "win32":  # as uvicorn binds: a just-closed connection does not count
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             s.bind((host, port))
         except OSError:
@@ -164,5 +169,5 @@ def run(args) -> int:
         open_when_ready(port, host)
     work = session.load(Path(args.folder) if args.folder else None)
     app = create_app(port, dev=args.dev, work=work, address=authority(host, port))
-    uvicorn.run(app, host=host, port=port, log_level="warning")
+    uvicorn.run(app, host=host, port=port, log_level="warning", timeout_graceful_shutdown=STOP_WAIT)
     return 0
