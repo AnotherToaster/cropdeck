@@ -1,7 +1,6 @@
 /* A guard stop (design: 3 Guard stop). Tokens only, as in app.css. */
 
 .guard { display: flex; flex-direction: column; gap: var(--space-24); }
-.muted { color: var(--muted); }
 .back-link {
   display: inline-flex;
   align-self: flex-start;

@@ -138,12 +138,6 @@ class Shell(unittest.TestCase):
         self.assertIn("8 sideways", html)  # the default layout
         self.assertNotIn('class="pill', html)  # nothing to review yet: no count pill
 
-    def test_setup_has_the_reduced_header_and_no_nav(self):
-        html = self.c.get("/setup").text
-        self.assertIn('class="brand"', html)
-        self.assertNotIn('<nav class="nav"', html)
-        self.assertNotIn('class="chip"', html)
-
     def test_without_a_folder_the_first_stop_is_setup(self):
         empty = Path(tempfile.mkdtemp()) / "ui.json"
         c = client(work=session.load(None, empty))
@@ -235,8 +229,9 @@ class Components(unittest.TestCase):
         self.assertIn('data-state="selected"', html)
 
     def test_no_colour_is_hard_coded_outside_the_tokens(self):
-        for f in [*(UI / "templates").rglob("*.html"), UI / "static" / "app.css"]:
-            self.assertNotRegex(f.read_text(), r"#[0-9A-Fa-f]{6}\b", f.name)
+        static = UI / "static"
+        for f in [*(UI / "templates").rglob("*.html"), static / "app.css", *static.glob("css/*")]:
+            self.assertNotRegex(f.read_text(), r"#[0-9A-Fa-f]{6}\b|rgba?\(", f.name)
 
     def test_the_components_page_is_a_dev_tool_only(self):
         self.assertEqual(client().get("/_components").status_code, 404)
@@ -283,6 +278,20 @@ class Launcher(unittest.TestCase):
             s.bind((server.HOST, 0))
             s.listen()
             self.assertFalse(server.free(s.getsockname()[1]))
+
+    def test_another_address_is_one_named_address_never_every_network(self):
+        self.assertIsNone(server.check_host("100.64.0.1"))
+        for host in ("0.0.0.0", "::", "atlas"):
+            self.assertIsNotNone(server.check_host(host), host)
+        self.assertEqual(server.url(8737, "fd7a::1"), "http://[fd7a::1]:8737/")
+
+    def test_the_address_bound_to_is_answered_and_others_still_refused(self):
+        c = TestClient(ui_app.create_app(PORT, address="100.64.0.1:8737"))
+        ok = c.get("/health", headers={"host": "100.64.0.1:8737"})
+        self.assertEqual(ok.status_code, 200)
+        self.assertEqual(c.get("/health", headers={"host": "100.64.0.2:8737"}).status_code, 421)
+        post = c.post("/process", headers={"host": "100.64.0.1:8737", "origin": "http://evil"})
+        self.assertEqual(post.status_code, 403)
 
 
 if __name__ == "__main__":

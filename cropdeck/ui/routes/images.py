@@ -1,9 +1,9 @@
 """
-The images the pages show: card thumbnails and downscaled scans of a tray.
+The images the pages show: card thumbnails, a card at full size, and downscaled scans of a tray.
 
-No file path is taken from a URL. A card thumbnail is served only for a file name cards.csv (or
-the run going on) lists as a card of this folder; a scan only by tray number and side, looked up
-in the folder's trays.
+No file path is taken from a URL. A card (or its thumbnail) is served only for a file name
+cards.csv (or the run going on) lists as a card of this folder; a scan only by tray number and
+side, looked up in the folder's trays.
 """
 
 from __future__ import annotations
@@ -31,15 +31,28 @@ def register(app, work, runner):
             return True
         return any(name in (r.get("front"), r.get("back")) for r in read_manifest(sorted_dir()))
 
-    @app.get("/thumb/{name}")
-    def card_thumb(name: str):
+    def card_file(name: str):
+        """The card's own file in sorted/, if name is one of this folder's cards."""
         out = sorted_dir()
         if "/" in name or "\\" in name or name.startswith(".") or not known_card(name):
             raise HTTPException(404)
-        made = thumbs.card(out / name, out)
+        return out / name
+
+    @app.get("/thumb/{name}")
+    def card_thumb(name: str, size: str = ""):
+        src = card_file(name)
+        made = thumbs.card(src, src.parent, large=size == "large")
         if made is None:
             raise HTTPException(404)
         return FileResponse(made, media_type="image/jpeg", headers=CACHE_HEADERS)
+
+    @app.get("/card/{name}")
+    def card_image(name: str):
+        """The card at full size, for the review's true-size view."""
+        src = card_file(name)
+        if not src.is_file():
+            raise HTTPException(404)
+        return FileResponse(src, headers=CACHE_HEADERS)
 
     @app.get("/tray/{n}/scan/{side}.jpg")
     def tray_scan(n: int, side: str):

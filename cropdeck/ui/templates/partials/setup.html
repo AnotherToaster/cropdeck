@@ -1,0 +1,49 @@
+{#- Setup's live parts: where the scanner saves to (follows the folder field) and the folder
+    browser (design: 1 Setup). l is a folders.Listing. -#}
+{% from "components/icons.html" import icon %}
+{% from "components/path_box.html" import path_box %}
+
+{% macro save_to(v) -%}
+<div id="save-to" class="save-to">
+  {%- if v.scans %}{{ path_box(v.scans) }}<p class="note">{{ t("setup.creates") }}</p>{% endif -%}
+</div>
+{%- endmacro %}
+
+{% macro browser(l, new=False, name="") -%}
+<div id="browser" class="browser" role="group" aria-label="{{ t('setup.browse.label') }}">
+  <div class="browser-head">
+    {%- if l.path %}
+    <button class="icon-button" type="button" aria-label="{{ t('setup.browse.up') }}"
+            hx-get="/setup/browse?folder={{ (l.parent or '') | urlencode }}" hx-target="#browser" hx-swap="outerHTML">{{ icon("back") }}</button>
+    <code>{{ l.path }}</code>
+    {%- else %}
+    <span class="muted">{{ t("setup.browse.top") }}</span>
+    {%- endif %}
+    <button class="icon-button" type="button" aria-label="{{ t('setup.browse.close') }}" data-close-browser>{{ icon("close") }}</button>
+  </div>
+  {%- if l.error %}<p class="error" role="alert">{{ t(l.error) }}</p>{% endif %}
+  {%- if l.folders %}
+  <ul class="browser-list">
+    {%- for f in l.folders %}
+    <li><button type="button" hx-get="/setup/browse?folder={{ f | string | urlencode }}" hx-target="#browser" hx-swap="outerHTML">{{ icon("folder", 18) }}<span>{{ f.name or f }}</span></button></li>
+    {%- endfor %}
+  </ul>
+  {%- elif l.path %}
+  <p class="muted">{{ t("setup.browse.empty") }}</p>
+  {%- endif %}
+  {%- if l.path %}
+  <div class="browser-foot">
+    {%- if new %}
+    <span class="new-folder">
+      <input class="field-input" form="new-folder" name="name" value="{{ name }}" aria-label="{{ t('setup.browse.name') }}" placeholder="{{ t('setup.browse.name') }}" autofocus>
+      <input type="hidden" form="new-folder" name="parent" value="{{ l.path }}">
+      <button class="btn" type="submit" form="new-folder" data-kind="secondary" data-size="small"><span>{{ t("setup.browse.create") }}</span></button>
+    </span>
+    {%- else %}
+    <button class="btn" type="button" data-kind="secondary" data-size="small" hx-get="/setup/browse?new=1&amp;folder={{ l.path | string | urlencode }}" hx-target="#browser" hx-swap="outerHTML"><span>{{ t("setup.new_folder") }}</span></button>
+    {%- endif %}
+    <button class="btn" type="button" data-kind="primary" data-size="small" data-use="{{ l.path }}"><span>{{ t("setup.browse.use") }}</span></button>
+  </div>
+  {%- endif %}
+</div>
+{%- endmacro %}

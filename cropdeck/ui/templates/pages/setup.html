@@ -1,4 +1,72 @@
 {% extends "base.html" %}
-{# First start: the reduced header - the logo only, no nav until there is a folder to work on. #}
-{% block header %}{% endblock %}
-{% block content %}<h1 class="page-title">{{ t("setup.title") }}</h1>{% endblock %}
+{#- Setup (handoff phase 5): the cards folder, how the cards lie on its glass, and the scanner
+    settings to check. On first start the header is reduced to the logo - there is nothing to
+    navigate to until a folder is set up. -#}
+{% import "partials/setup.html" as parts %}
+{% from "components/glass.html" import glass %}
+{% from "components/icons.html" import icon %}
+{% block title %}{{ t("setup.eyebrow") }} · {{ t("app.name") }}{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="/static/css/setup.css">
+  <script src="/static/js/setup.js" defer></script>{% endblock %}
+{% block header %}{% if work.folder %}{{ super() }}{% endif %}{% endblock %}
+{% block content %}
+<form id="new-folder" hx-post="/setup/browse/new" hx-target="#browser" hx-swap="outerHTML"></form>
+<form class="setup" method="post" action="/setup">
+  <div class="setup-head">
+    <span class="eyebrow">{{ t("setup.eyebrow") }}</span>
+    <h1 class="page-title">{{ t("setup.title") }}</h1>
+  </div>
+
+  <section class="setup-step" aria-labelledby="step-folder">
+    <h2 id="step-folder"><span class="step-no" aria-hidden="true">1</span>{{ t("setup.folder.title") }}</h2>
+    <div class="folder-pick">
+      <label class="field-label" for="folder">{{ t("setup.folder.label") }}</label>
+      <div class="folder-row">
+        <input id="folder" class="field-input mono" type="text" name="folder" value="{{ v.folder }}"
+               autocomplete="off" spellcheck="false" required
+               {%- if v.error %} aria-invalid="true" aria-describedby="folder-error"{% endif %}
+               hx-get="/setup/save-to" hx-trigger="input changed delay:300ms" hx-target="#save-to" hx-swap="outerHTML">
+        <button class="btn" type="button" data-kind="secondary" hx-get="/setup/browse" hx-include="#folder" hx-target="#browser" hx-swap="outerHTML">{{ icon("folder", 18) }}<span>{{ t("setup.choose") }}</span></button>
+        <button class="btn" type="button" data-kind="secondary" hx-get="/setup/browse?new=1" hx-include="#folder" hx-target="#browser" hx-swap="outerHTML"><span>{{ t("setup.new_folder") }}</span></button>
+      </div>
+      {%- if v.error %}<p id="folder-error" class="error" role="alert">{{ t(v.error) }}</p>{% endif %}
+      <div id="browser" hidden></div>
+    </div>
+    {{ parts.save_to(v) }}
+  </section>
+
+  <section class="setup-step" aria-labelledby="step-layout">
+    <div class="step-head">
+      <h2 id="step-layout"><span class="step-no" aria-hidden="true">2</span>{{ t("setup.layout.title") }}</h2>
+      <span class="note">{{ t("setup.layout.kept") }}</span>
+    </div>
+    <fieldset class="layout-picker">
+      <legend class="visually-hidden">{{ t("chip.layout") }}</legend>
+      {%- for lay in v.layouts %}
+      <label class="layout-option">
+        <input type="radio" name="layout" value="{{ lay.id }}"{% if lay.id == v.layout %} checked{% endif %}>
+        {%- if lay.id == v.default %}<span class="default-tag">{{ t("setup.layout.default") }}</span>{% endif %}
+        {{ glass(lay, 104) }}
+        <span class="layout-text"><span class="layout-name">{{ t("layouts." ~ lay.id ~ ".name") }}</span><span class="note">{{ t("layouts." ~ lay.id ~ ".sub") }}</span></span>
+      </label>
+      {%- endfor %}
+    </fieldset>
+    <p class="note">{{ t("setup.layout.caption") }}</p>
+  </section>
+
+  <section class="setup-step" aria-labelledby="step-scanner">
+    <h2 id="step-scanner"><span class="step-no" aria-hidden="true">3</span>{{ t("setup.scanner.title") }}</h2>
+    <div class="checklist">
+      {%- for key in ["glass", "crop", "dpi", "lid"] %}
+      <label class="check"><input type="checkbox"><span><span class="check-title">{{ t("setup.scanner." ~ key ~ ".title") }}</span><span class="note">{{ t("setup.scanner." ~ key ~ ".sub") }}</span></span></label>
+      {%- endfor %}
+    </div>
+    <p class="note">{{ t("setup.scanner.note") }}</p>
+  </section>
+
+  <div class="setup-foot">
+    <button class="btn" type="submit" data-kind="primary" data-size="large">{{ icon("play", 18) }}<span>{{ t("setup.start") }}</span></button>
+  </div>
+</form>
+{% endblock %}

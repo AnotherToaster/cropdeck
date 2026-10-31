@@ -1,0 +1,5 @@
+{#- The count of cards that need a look, on the Review nav item; empty (and not shown) at 0. Always
+    present, so the review can swap it out of band when an edit changes the count. -#}
+{% macro review_pill(n, oob=False) -%}
+<span id="review-pill"{% if oob %} hx-swap-oob="true"{% endif %}>{% if n %}<span class="pill num" aria-label="{{ t('nav.needs_look', n=n) }}">{{ n }}</span>{% endif %}</span>
+{%- endmacro %}

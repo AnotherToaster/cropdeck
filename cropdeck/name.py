@@ -323,11 +323,11 @@ def run(args) -> int:
 
     if not args.dry_run:
         # merge, never replace: a named card's row keeps every column this step does not
-        # own (the split step's tray and slot, anything you typed in), and rows for
+        # own (the split step's tray and slot), every field you typed in, and rows for
         # cards named in earlier runs are left alone
         by_card = {r.get("card"): r for r in manifest.read(folder)}
         for r in rows:
-            by_card[r["card"]] = {**by_card.get(r["card"], {}), **r}
+            by_card[r["card"]] = manifest.recognised(by_card.get(r["card"], {}), r)
         merged = sorted(by_card.values(), key=lambda r: str(r.get("card", "")))
         out = manifest.write(folder, merged)
         print(f"\nManifest updated: {out}  ({len(merged)} card(s) total)")

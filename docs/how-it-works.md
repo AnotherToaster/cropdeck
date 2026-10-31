@@ -168,7 +168,15 @@ See [tracker.md](tracker.md).
 
 A local web page for the whole loop, served from this computer only (`127.0.0.1:8737`, never the
 network) and opened in the browser; installable as an app window. The cards folder given to
-`cropdeck ui FOLDER` is remembered for the next start. Built in phases from the design handoff:
+`cropdeck ui FOLDER` (or chosen in setup) is remembered for the next start. `--host ADDRESS` serves
+it on one other address instead, such as this computer's address on a private network of your own,
+to use it from another device; it has no login, so everyone who can reach that address can use it.
+Built in phases from the design handoff:
+
+- **Setup** (`/setup`, first on a first start): the cards folder, picked in the page's own folder
+  browser or typed, with `scans/` and `sorted/` created inside and the folder checked to be
+  writable; how the cards lie on the glass, kept in the folder's state file; a checklist of
+  scanner settings (for you to tick, not stored).
 
 - **Scan loop** (`/`): always one next step, decided by the server from the folder itself - scan
   the fronts, flip and scan the backs, process, working, stopped, done - with the trays newest
@@ -176,7 +184,14 @@ network) and opened in the browser; installable as an app window. The cards fold
   a run goes, the page follows it live (server-sent events) and each card appears as it is cut.
 - **Guard stops** (`/tray/N/stop`): both scans with the detected cards outlined, the reason in one
   line, and the fixes above as buttons.
-- Setup, review, collection and settings follow.
+- **Review** (`/review`): every card with its front and back and the fields name, number, set,
+  language and variant; the cards that need a look first (recognition read nothing, or only a
+  weak match), then the rest, then the accepted ones. A field is saved to `cards.csv` as you leave
+  it, Accept saves the card and marks it accepted. Keys: J/K next and previous, Enter accept,
+  E edit, Space true size (63 × 88 mm at 100 % display scaling). What you type is listed in the
+  row's `typed` column, and `cropdeck name` never writes over it. Recognition itself does not run
+  in the interface yet: there, cards start with empty fields.
+- Collection and settings follow.
 
 Thumbnails are small JPEGs cached in `sorted/_thumbs/`; the scans folder is only read.
 
@@ -209,6 +224,7 @@ cropdeck status [FOLDER]
 cropdeck ui [FOLDER]     the browser interface (early, in development): 127.0.0.1:8737,
                          the cards folder remembered for next time; installable as an app window
   --port N  --no-browser
+  --host ADDRESS         serve on that one address instead (no login: a private network only)
   --dev                  design checks: ?theme=dark|light, and /_components (every component)
 
 cropdeck split [input ...] [-o OUT]

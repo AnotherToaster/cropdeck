@@ -1,8 +1,9 @@
 """
 The FastAPI app behind `cropdeck ui`: server-rendered pages (Jinja2) and their static files.
 
-It only ever answers the browser on this computer. Two checks enforce that beyond the 127.0.0.1
-bind: the Host header must name this server (a foreign host is a DNS-rebinding attempt), and a
+It only ever answers the browser on this computer (or, with `cropdeck ui --host`, on the one
+address it was bound to). Two checks enforce that beyond the bind: the Host header must name this
+server (a foreign host is a DNS-rebinding attempt), and a
 request that changes something must not come from a foreign Origin (another website posting to
 it). Requests that change state are never GETs, so a link or an image elsewhere cannot trigger one.
 """
@@ -19,8 +20,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from .. import paths
-from . import i18n, live, session
-from .routes import images, pages, scan, stop
+from . import i18n, live, review_view, session
+from .routes import images, pages, review, scan, setup, stop
 from .runner import Runner
 
 HERE = Path(__file__).resolve().parent
@@ -36,10 +37,12 @@ def create_app(
     hosts: tuple[str, ...] = (),
     work: session.Session | None = None,
     watch: bool = True,
+    address: str | None = None,
 ) -> FastAPI:
     """The app for a server on 127.0.0.1:port. dev adds the design-check helpers; hosts adds
     host names to accept besides 127.0.0.1 and localhost (the tests' client); work is the folder
-    and layout to show (none: setup first); watch polls the scans folder for new scans."""
+    and layout to show (none: setup first); watch polls the scans folder for new scans; address
+    ("100.64.0.1:8737") is the one other address the server is bound to (`cropdeck ui --host`)."""
     hub = live.Hub()
     runner = Runner(hub)
 
@@ -56,6 +59,9 @@ def create_app(
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     allowed = {f"127.0.0.1:{port}", f"localhost:{port}", *hosts}
     origins = {f"http://127.0.0.1:{port}", f"http://localhost:{port}"}
+    if address:
+        allowed.add(address)
+        origins.add(f"http://{address}")
     work = work or session.Session(None, session.LAYOUTS[session.DEFAULT])
 
     templates = Jinja2Templates(directory=HERE / "templates")
@@ -78,7 +84,7 @@ def create_app(
             lang=i18n.DEFAULT,
             theme=theme if theme in THEMES else None,
             work=work,
-            review_count=0,  # cards that need a look - counted from phase 6 (review)
+            review_count=review_view.needs_look(work.folder),
         )
         return templates.TemplateResponse(request, template, context)
 
@@ -95,5 +101,7 @@ def create_app(
     pages.register(app, render, work, HERE / "static", dev=dev)
     scan.register(app, render, fragment, work, hub, runner)
     stop.register(app, render, work, hub, runner)
+    setup.register(app, render, fragment, work, runner)
+    review.register(app, render, fragment, work)
     images.register(app, work, runner)
     return app
