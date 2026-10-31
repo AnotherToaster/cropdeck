@@ -59,6 +59,10 @@ class ScanLoop(unittest.TestCase):
         """Start a run from the page and wait until it is done."""
         r = self.client.post("/process", headers=HX)
         self.assertEqual(r.status_code, 200)
+        self.settle()
+
+    def settle(self):
+        """Wait until no run is going."""
         for _ in range(240):
             if 'aria-label="Working"' not in self.page():
                 return
@@ -117,11 +121,13 @@ class ScanLoop(unittest.TestCase):
         self.assertIn("Waiting for tray 1.", html)  # tray 2 waits, visibly
         self.assertFalse(list((self.home / "sorted").glob("card_*")))
 
-        r = self.client.post("/tray/1/skip", headers=HX)
+        r = self.client.post("/tray/1/skip", headers=HX)  # the trays behind it run on
         self.assertEqual(r.status_code, 200)
+        self.settle()
         html = self.page()
-        self.assertIn("1 tray ready", self.next_step(html))
+        self.assertIn("Tray 1 done", self.next_step(html))  # tray 2, the only one done
         self.assertIn('data-kind="skipped"', html)
+        self.assertEqual(len(list((self.home / "sorted").glob("card_*_front.png"))), 8)
         self.client.post("/tray/1/unskip", headers=HX)
         self.assertIn("Tray 1 stopped", self.next_step(self.page()))
 
