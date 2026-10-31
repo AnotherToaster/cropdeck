@@ -8,11 +8,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import Request
+from fastapi import HTTPException, Request
 from fastapi.responses import FileResponse, RedirectResponse
 
 
-def register(app, render, work, static: Path):
+def register(app, render, work, static: Path, dev: bool = False):
     def screen(request: Request, current: str):
         return render(request, "pages/placeholder.html", current=current)
 
@@ -42,6 +42,17 @@ def register(app, render, work, static: Path):
     @app.get("/offline")
     def offline(request: Request):
         return render(request, "pages/offline.html", current=None)
+
+    @app.get("/_components")
+    def components(request: Request):
+        if not dev:  # a design-check page, not part of the app
+            raise HTTPException(404)
+        from ...layouts import LAYOUTS
+        from .. import dev as samples
+
+        return render(
+            request, "pages/components.html", current=None, layouts=LAYOUTS, **samples.sample()
+        )
 
     # the service worker must be served from the root to look after the whole site
     @app.get("/sw.js")

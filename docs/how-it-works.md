@@ -170,7 +170,8 @@ cropdeck run [FOLDER]   crop + pair FOLDER/scans -> FOLDER/sorted
 cropdeck status [FOLDER]
 cropdeck ui [FOLDER]     the browser interface (early, in development): 127.0.0.1:8737,
                          the cards folder remembered for next time; installable as an app window
-  --port N  --no-browser  --dev
+  --port N  --no-browser
+  --dev                  design checks: ?theme=dark|light, and /_components (every component)
 
 cropdeck split [input ...] [-o OUT]
   --pair                odd scans = fronts, even = their backs

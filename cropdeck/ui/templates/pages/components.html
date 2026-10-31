@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{#- Dev only (`cropdeck ui --dev`): every component in every variant, laid out like the design's
+    Components artboard, for side-by-side checks in light and dark (?theme=light|dark). -#}
+{% from "components/button.html" import button, icon_button %}
+{% from "components/badge.html" import badge %}
+{% from "components/pair.html" import pair %}
+{% from "components/tray_row.html" import tray_row %}
+{% from "components/glass.html" import glass %}
+{% from "components/progress.html" import progress %}
+{% from "components/field.html" import field %}
+{% from "components/table.html" import table_head, table_row %}
+{% from "components/kbd.html" import kbd %}
+{% block title %}{{ t("components.title") }} · {{ t("app.name") }}{% endblock %}
+{% block content %}
+<div class="showcase-head">
+  <h1 class="page-title">{{ t("components.title") }}</h1>
+  <span class="tagline">{{ t("components.intro") }}</span>
+</div>
+<div class="showcase">
+  <section class="spec-block">
+    <h2>{{ t("components.buttons") }}</h2>
+    <div class="row">
+      {{ button("Process new scans", "primary", icon_name="play") }}
+      {{ button("Rescan the backs", "secondary") }}
+      {{ button("Skip tray 3", "quiet") }}
+      {{ button("No new scans", disabled_reason="No scans in the folder yet") }}
+      {{ icon_button("settings", t("nav.settings")) }}
+    </div>
+  </section>
+
+  <section class="spec-block">
+    <h2>{{ t("components.badges") }}</h2>
+    {% for group, kinds in [("group_tray", ["waiting", "working", "done", "skipped", "stopped", "needs-backs", "ready"]),
+                            ("group_review", ["check", "unread", "filled", "accepted"]),
+                            ("group_tracker", ["scanned", "ready", "listed", "sold", "shipped", "keeping"])] %}
+    <div class="row"><span class="row-label">{{ t("components." ~ group) }}</span>{% for k in kinds %}{{ badge(k) }}{% endfor %}</div>
+    {% endfor %}
+  </section>
+
+  <section class="spec-block">
+    <h2>{{ t("components.pairs") }}</h2>
+    <div class="row">
+      {% for state, label in [("default", "default"), ("selected", "selected"), ("needs-look", "needs_look")] %}
+      {% set p = pairs[loop.index0] %}
+      <div class="labelled">{{ pair(p.number, p.front, p.back, state) }}<span class="tagline">{{ t("components." ~ label) }}</span></div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="spec-block">
+    <h2>{{ t("components.trays") }}</h2>
+    {{ tray_row("Tray 3", "Cards 017–024 · card 018 now", "working") }}
+    {{ tray_row("Tray 2", "Cards 009–016 · 21:02", "done", strip=strip) }}
+    {{ tray_row("Tray 3", "8 fronts, 6 backs · nothing written", "stopped") }}
+    {{ tray_row("Tray 4", "Waiting for tray 3", "waiting") }}
+    {{ tray_row("Tray 5", "Cards 033–040", "done", pairs=pairs, time="21:14", review_href="#") }}
+  </section>
+
+  <section class="spec-block">
+    <h2>{{ t("components.table") }}</h2>
+    {% set cols = [{"label": "Card", "num": False}, {"label": "Name", "num": False}, {"label": "Status", "num": False}, {"label": "Price CHF", "num": True}] %}
+    <div class="table-box"><table class="table num">
+      {{ table_head(cols) }}
+      <tbody>
+        {{ table_row(cols, ["001", "Tide Runner", badge("listed"), "4.50"]) }}
+        {{ table_row(cols, ["003", "Moss Warden", badge("ready"), "6.00"], selected=True) }}
+        {{ table_row(cols, ["004", "", badge("scanned"), None]) }}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="spec-block">
+    <h2>{{ t("components.fields") }}</h2>
+    <div class="fields">
+      {{ field("Name", "name", "Tide Runner") }}
+      {{ field("Number", "number", "112/120", "unsure") }}
+      {{ field("Currency", "currency", "CHF", "fixed") }}
+    </div>
+  </section>
+
+  <section class="spec-block wide">
+    <h2>{{ t("components.glass") }}</h2>
+    <div class="glasses">
+      {% for id, lay in layouts.items() %}
+      <figure class="labelled">{{ glass(lay, selected=(id == "s8")) }}<figcaption><strong>{{ t("layouts." ~ id ~ ".name") }}</strong><span class="tagline">{{ t("layouts." ~ id ~ ".grid") }}</span></figcaption></figure>
+      {% endfor %}
+      <figure class="labelled">{{ glass(layouts["s8"], dashed=True) }}<figcaption><span class="tagline">dashed</span></figcaption></figure>
+    </div>
+  </section>
+
+  <section class="spec-block wide">
+    <h2>{{ t("components.progress") }}</h2>
+    {{ progress(segments, done=17, total=40, label="Tray 3 of 5") }}
+  </section>
+
+  <section class="spec-block">
+    <h2>{{ t("components.keys") }}</h2>
+    <div class="row">{{ kbd("J") }} {{ kbd("K") }} {{ kbd("Enter") }} {{ kbd("E") }} {{ kbd("Space") }}</div>
+  </section>
+</div>
+{% endblock %}

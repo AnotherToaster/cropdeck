@@ -1,0 +1,10 @@
+{#- Field (design: Components > Fields): label above. state: normal | unsure (2px amber and the word)
+    | fixed (dashed on panel with a lock - shown, never hidden). -#}
+{% from "components/icons.html" import icon %}
+{% macro field(label, name, value="", state="normal", placeholder="") -%}
+{%- if state == "fixed" -%}
+<div class="field" data-state="fixed"><span class="field-label">{{ label }}</span><span class="field-input">{{ value }}<span role="img" aria-label="{{ t('field.fixed') }}">{{ icon("lock", 14) }}</span></span></div>
+{%- else -%}
+<label class="field" data-state="{{ state }}"><span class="field-label">{{ label }}{% if state == "unsure" %} <span class="unsure">· {{ t("field.unsure") }}</span>{% endif %}</span><input class="field-input" type="text" name="{{ name }}" value="{{ value }}" placeholder="{{ placeholder }}"></label>
+{%- endif -%}
+{%- endmacro %}

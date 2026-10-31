@@ -68,5 +68,5 @@ def create_app(
     def health():
         return HEALTH
 
-    pages.register(app, render, work, HERE / "static")
+    pages.register(app, render, work, HERE / "static", dev=dev)
     return app

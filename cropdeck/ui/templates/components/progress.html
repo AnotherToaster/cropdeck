@@ -1,0 +1,10 @@
+{#- Segmented progress (design: Components > Progress): one segment per tray of the run, filled with
+    real counts from the server. segments: list of {"fill": 0..1, "label": text}; done and total are
+    the run's card counts for screen readers. Width is the only thing that moves. -#}
+{% macro progress(segments, done, total, label) -%}
+<div class="progress" role="progressbar" aria-label="{{ label }}" aria-valuemin="0" aria-valuemax="{{ total }}" aria-valuenow="{{ done }}">
+  {%- for s in segments %}
+  <div class="segment"><span class="track"><span class="fill" style="width: {{ '%.1f' % (s.fill * 100) }}%"></span></span><span class="segment-label">{{ s.label }}</span></div>
+  {%- endfor %}
+</div>
+{%- endmacro %}

@@ -37,6 +37,18 @@ def tokens(theme: str) -> dict[str, str]:
     return found
 
 
+def badge_rules() -> dict[str, str]:
+    """kind -> the declarations of the rule that styles the badge itself (not its dot)."""
+    css = re.sub(r"/\*.*?\*/", "", (UI / "static" / "app.css").read_text(), flags=re.S)
+    looks = {}
+    for selectors, body in re.findall(r"([^{}]+)\{([^}]*)\}", css):
+        for sel in selectors.split(","):
+            m = re.fullmatch(r'\s*\.badge\[data-kind="([\w-]+)"\]\s*', sel)
+            if m:
+                looks[m.group(1)] = looks.get(m.group(1), "") + body
+    return looks
+
+
 def contrast(a: str, b: str) -> float:
     def lum(hex_):
         c = [int(hex_[i : i + 2], 16) / 255 for i in (1, 3, 5)]
@@ -149,6 +161,87 @@ class Shell(unittest.TestCase):
         self.assertIn('"/offline"', sw)
         self.assertNotIn('"/"', sw)  # app pages are never kept: nothing stale shown as current
         self.assertIn("cropdeck is not running", self.c.get("/offline").text)
+
+
+@unittest.skipIf(TestClient is None, 'needs pip install "cropdeck[ui]"')
+class Components(unittest.TestCase):
+    """Each macro in templates/components, rendered on its own, in every variant."""
+
+    def setUp(self):
+        from jinja2 import Environment, FileSystemLoader
+
+        self.env = Environment(loader=FileSystemLoader(str(UI / "templates")), autoescape=True)
+        self.env.globals["t"] = i18n.t
+
+    def macro(self, file, name):
+        return getattr(self.env.get_template(f"components/{file}.html").module, name)
+
+    def test_every_badge_kind_has_its_words_and_its_look(self):
+        kinds = self.env.get_template("components/badge.html").module.KINDS
+        handoff = {"waiting", "working", "done", "skipped", "stopped", "needs-backs", "ready",
+                   "check", "unread", "filled", "accepted",
+                   "scanned", "listed", "sold", "shipped", "keeping"}  # fmt: skip
+        self.assertEqual(set(kinds), handoff)
+        looks = badge_rules()
+        for k in kinds:
+            self.assertIn(f'data-kind="{k}"', str(self.macro("badge", "badge")(k)))
+            self.assertRegex(looks.get(k, ""), r"color:.*background:", k)  # its own text and ground
+            self.assertTrue(i18n.t(f"badge.{k}"))
+
+    def test_the_grey_badges_use_text_colour_for_contrast(self):
+        looks = badge_rules()
+        for k in ("waiting", "skipped", "filled", "scanned"):
+            self.assertIn("color: var(--text)", looks[k], k)
+
+    def test_a_disabled_button_says_why(self):
+        html = str(self.macro("button", "button")("No new scans", disabled_reason="No scans yet"))
+        self.assertIn("disabled", html)
+        self.assertIn("No scans yet", html)
+
+    def test_the_glass_places_cards_where_the_layout_says(self):
+        from cropdeck.layouts import LAYOUTS
+
+        html = str(self.macro("glass", "glass")(LAYOUTS["s8"], selected=True))
+        self.assertEqual(html.count('class="glass-card"'), 8)
+        # card 1 of s8 at 12 mm, 12 mm on the 210 x 297 glass, 88 x 63 mm
+        self.assertIn("left: 5.71%; top: 4.04%; width: 41.90%; height: 21.21%", html)
+        self.assertIn('data-selected="yes"', html)
+
+    def test_progress_tells_screen_readers_the_real_counts(self):
+        html = str(
+            self.macro("progress", "progress")([{"fill": 0.5, "label": "Tray 1"}], 4, 8, "Run")
+        )
+        self.assertIn('role="progressbar"', html)
+        self.assertIn('aria-valuenow="4"', html)
+        self.assertIn('aria-valuemax="8"', html)
+        self.assertIn("width: 50.0%", html)
+
+    def test_fields_show_unsure_and_fixed(self):
+        field = self.macro("field", "field")
+        self.assertIn("· unsure", str(field("Number", "n", "1/2", "unsure")))
+        fixed = str(field("Currency", "c", "CHF", "fixed"))
+        self.assertIn('aria-label="Fixed"', fixed)
+        self.assertNotIn("<input", fixed)  # fixed is shown, not editable
+
+    def test_an_empty_table_cell_is_an_en_dash(self):
+        cols = [{"label": "Name", "num": False}, {"label": "Price", "num": True}]
+        html = str(self.macro("table", "table_row")(cols, ["", None]))
+        self.assertEqual(html.count("–"), 2)
+
+    def test_a_pair_shows_front_left_of_its_back(self):
+        html = str(self.macro("pair", "pair")("017", "f.png", "b.png", "selected"))
+        self.assertLess(html.index("f.png"), html.index("b.png"))
+        self.assertIn('data-state="selected"', html)
+
+    def test_no_colour_is_hard_coded_outside_the_tokens(self):
+        for f in [*(UI / "templates").rglob("*.html"), UI / "static" / "app.css"]:
+            self.assertNotRegex(f.read_text(), r"#[0-9A-Fa-f]{6}\b", f.name)
+
+    def test_the_components_page_is_a_dev_tool_only(self):
+        self.assertEqual(client().get("/_components").status_code, 404)
+        page = client(dev=True).get("/_components")
+        self.assertEqual(page.status_code, 200)
+        self.assertEqual(page.text.count('class="badge"'), 25)
 
 
 class Layouts(unittest.TestCase):

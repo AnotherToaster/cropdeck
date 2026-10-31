@@ -1,0 +1,21 @@
+{#- Buttons (design: Components > Buttons). kind: primary | secondary | quiet. One primary per view.
+    With href it is a link that looks like a button. A disabled button always says why, beside it. -#}
+{% from "components/icons.html" import icon %}
+{% macro button(label, kind="secondary", href=None, icon_name=None, disabled_reason=None, type="button", attrs="") -%}
+{%- set inner %}{% if icon_name %}{{ icon(icon_name, 18) }}{% endif %}<span>{{ label }}</span>{% endset -%}
+{%- if disabled_reason -%}
+<span class="btn-with-reason"><button class="btn" type="{{ type }}" data-kind="disabled" disabled>{{ inner }}</button><span class="reason">{{ disabled_reason }}</span></span>
+{%- elif href -%}
+<a class="btn" data-kind="{{ kind }}" href="{{ href }}" {{ attrs }}>{{ inner }}</a>
+{%- else -%}
+<button class="btn" type="{{ type }}" data-kind="{{ kind }}" {{ attrs }}>{{ inner }}</button>
+{%- endif -%}
+{%- endmacro %}
+
+{% macro icon_button(icon_name, label, href=None, current=False) -%}
+{%- if href -%}
+<a class="icon-button" href="{{ href }}" aria-label="{{ label }}"{% if current %} aria-current="page"{% endif %}>{{ icon(icon_name) }}</a>
+{%- else -%}
+<button class="icon-button" type="button" aria-label="{{ label }}">{{ icon(icon_name) }}</button>
+{%- endif -%}
+{%- endmacro %}

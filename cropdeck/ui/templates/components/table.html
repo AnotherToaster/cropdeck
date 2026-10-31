@@ -1,0 +1,9 @@
+{#- Table rows (design: Components > Table row). A column is {"label", "num": bool}; numbers are
+    right-aligned and tabular. An empty cell shows an en dash in --muted, never blank. -#}
+{% macro table_head(columns) -%}
+<thead><tr>{% for c in columns %}<th scope="col"{% if c.num %} class="num"{% endif %}>{{ c.label }}</th>{% endfor %}</tr></thead>
+{%- endmacro %}
+
+{% macro table_row(columns, cells, selected=False) -%}
+<tr{% if selected %} aria-selected="true"{% endif %}>{% for c in columns %}{% set v = cells[loop.index0] %}<td{% if c.num %} class="num"{% endif %}>{% if v is none or v == "" %}<span class="empty">–</span>{% else %}{{ v }}{% endif %}</td>{% endfor %}</tr>
+{%- endmacro %}
