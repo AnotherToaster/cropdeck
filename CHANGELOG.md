@@ -30,10 +30,3 @@
 
 * README picture made by cropdeck from a synthetic tray ([#9](https://github.com/AnotherToaster/cropdeck/issues/9)) ([dd91bf3](https://github.com/AnotherToaster/cropdeck/commit/dd91bf31506829fb44217a1d3b2b47b14a27b8a5))
 * README rewritten for first-time users ([#14](https://github.com/AnotherToaster/cropdeck/issues/14)) ([4f20d54](https://github.com/AnotherToaster/cropdeck/commit/4f20d540862063c5a08044ec96ebba319a230c50))
-
-## Changelog
-
-Written by [release-please](https://github.com/googleapis/release-please) from the titles of the
-pull requests merged into `main` (Conventional Commits). Versions follow
-[Semantic Versioning](https://semver.org/); until 1.0, minor versions may change the command line
-or file formats.

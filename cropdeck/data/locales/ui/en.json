@@ -1,7 +1,6 @@
 {
   "app": {
-    "name": "cropdeck",
-    "local_only": "Runs on this computer only. No account, works offline."
+    "name": "cropdeck"
   },
   "nav": {
     "label": "Main",
@@ -41,8 +40,8 @@
     "title": "Where your cards live, and how they lie on the glass"
   },
   "offline": {
-    "title": "cropdeck is not running",
-    "body": "Start it again with cropdeck ui, then reload this window."
+    "title": "Not running",
+    "body": "Start cropdeck ui, then reload."
   },
   "badge": {
     "waiting": "Waiting",

@@ -140,8 +140,9 @@ class Shell(unittest.TestCase):
 
     def test_setup_has_the_reduced_header_and_no_nav(self):
         html = self.c.get("/setup").text
-        self.assertIn("Runs on this computer only. No account, works offline.", html)
+        self.assertIn('class="brand"', html)
         self.assertNotIn('<nav class="nav"', html)
+        self.assertNotIn('class="chip"', html)
 
     def test_without_a_folder_the_first_stop_is_setup(self):
         empty = Path(tempfile.mkdtemp()) / "ui.json"
@@ -160,7 +161,7 @@ class Shell(unittest.TestCase):
         sw = self.c.get("/sw.js").text
         self.assertIn('"/offline"', sw)
         self.assertNotIn('"/"', sw)  # app pages are never kept: nothing stale shown as current
-        self.assertIn("cropdeck is not running", self.c.get("/offline").text)
+        self.assertIn("Not running", self.c.get("/offline").text)
 
 
 @unittest.skipIf(TestClient is None, 'needs pip install "cropdeck[ui]"')
