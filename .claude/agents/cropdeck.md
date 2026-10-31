@@ -20,7 +20,8 @@ change anything; they explain why each step is built the way it is, including th
 3. **True scale.** Cards are rotated and cropped with scale fixed at 1.0 — never resized to a
    nominal box. The rectangle is normalised to the smallest rotation first (see `extract_card`).
 4. **Millimetres, not pixels.** Thresholds are in mm and converted through the measured dpi.
-5. **The user's spreadsheet edits survive** every tracker run.
+5. **The user's edits survive**: spreadsheet edits every tracker run, and fields typed in the
+   review (listed in `cards.csv`'s `typed` column) every name run (`manifest.recognised`).
 6. **Nothing in `scans/` is ever written, renamed or deleted**, and finished scans are skipped via
    the state file.
 
@@ -60,6 +61,6 @@ change anything; they explain why each step is built the way it is, including th
 | `cropdeck/name.py` | OCR name and collector number, fuzzy match against `data/pokemon_names.json`, rename pairs |
 | `cropdeck/track.py` | `cards.csv` → `card-tracker.xlsx`, edits preserved |
 | `cropdeck/texts.py` | the tracker's languages (`data/locales/<code>.json`) and currencies |
-| `cropdeck/ui/` | the browser interface: `server.py` (launcher), `app.py`, `routes/`, `templates/` (pages, partials, one macro per component), `static/`; `scan_view.py` and `stop_view.py` decide what a page shows, `runner.py` runs processing in a worker thread, `live.py` the events and the folder watcher, `thumbs.py` the small images; its strings in `data/locales/ui/` |
+| `cropdeck/ui/` | the browser interface: `server.py` (launcher), `app.py`, `routes/`, `templates/` (pages, partials, one macro per component), `static/`; `scan_view.py`, `stop_view.py` and `review_view.py` decide what a page shows, `folders.py` the setup's folder browser and checks, `session.py` the folder and its layout, `forms.py` reads posted forms, `runner.py` runs processing in a worker thread, `live.py` the events and the folder watcher, `thumbs.py` the small images; its strings in `data/locales/ui/` |
 | `tests/` | synthetic trays and behaviour tests (`test_ui.py` needs the `ui` and `test` extras) |
 | `docs/` | install on Windows, scanning guide, how it works, tracker |
