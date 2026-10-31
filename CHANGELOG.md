@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.0](https://github.com/AnotherToaster/cropdeck/compare/v0.1.0...v0.2.0) (2026-10-31)
+
+
+### Features
+
+* browser interface, phases 0-2 (foundations, shell, components) ([#16](https://github.com/AnotherToaster/cropdeck/issues/16)) ([4ea884a](https://github.com/AnotherToaster/cropdeck/commit/4ea884a637553500dcad0f2f868e069012fd4bac))
+* the browser interface's components (UI phase 2) ([#19](https://github.com/AnotherToaster/cropdeck/issues/19)) ([cf725a2](https://github.com/AnotherToaster/cropdeck/commit/cf725a223321417f96e736b8ffe533f1a04432ac))
+* the browser interface's shell (UI phase 1) ([#18](https://github.com/AnotherToaster/cropdeck/issues/18)) ([af5104a](https://github.com/AnotherToaster/cropdeck/commit/af5104adbe5b401c5ab417c0bb2cc940015ee41c))
+
 ## 0.1.0 (2026-10-30)
 
 
