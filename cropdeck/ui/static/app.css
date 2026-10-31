@@ -166,6 +166,8 @@ h1, h2, h3, p { margin: 0; }
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.btn[data-size="large"] { min-height: 52px; padding: 0 26px; font-size: var(--fs-heading); }
+.btn[data-size="small"] { min-height: 36px; padding: 0 14px; font-size: 14px; }
 .btn[data-kind="disabled"] { border: 1px dashed var(--line); background: var(--bg); color: var(--muted); cursor: not-allowed; }
 .btn-with-reason { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--space-12); }
 .btn-with-reason .reason { color: var(--muted); font-size: var(--fs-small); }
@@ -229,7 +231,7 @@ button.icon-button { border: 1px solid var(--line); background: var(--bg); curso
 .pair figcaption { display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 700; }
 .pair .dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--muted); box-sizing: border-box; }
 .pair .sides { display: flex; gap: var(--space-4); }
-.pair img { flex: 1; width: 0; height: auto; aspect-ratio: 63 / 88; object-fit: cover; border-radius: var(--radius-thumb); }
+.pair img { flex: 1; width: 0; height: auto; aspect-ratio: 63 / 88; object-fit: cover; border-radius: var(--radius-thumb); background: var(--wait-bg); }
 .pair[data-state="selected"] { border: 2px solid var(--teal); box-shadow: 0 0 0 4px var(--teal-soft); }
 .pair[data-state="selected"] .dot { border: none; background: var(--teal); }
 .pair[data-state="needs-look"] { border: 2px solid var(--amber); }
@@ -271,7 +273,12 @@ button.icon-button { border: 1px solid var(--line); background: var(--bg); curso
   font-weight: 600;
 }
 .glass[data-selected="yes"] .glass-card { border-color: var(--teal); color: var(--teal); }
-.glass[data-dashed="yes"] .glass-card { border-style: dashed; }
+.glass[data-dashed="yes"] .glass-card { border-style: dashed; border-color: var(--teal); color: var(--teal); }
+.glass[data-backs="yes"] .glass-card {
+  border: none;
+  background: repeating-linear-gradient(135deg, var(--back-a) 0 4px, var(--back-b) 4px 8px);
+  color: var(--bg);
+}
 
 /* segmented progress: one segment per tray; width is the only motion */
 .progress { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; gap: 6px; }

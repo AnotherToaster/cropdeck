@@ -9,6 +9,8 @@ it). Requests that change state are never GETs, so a link or an image elsewhere 
 
 from __future__ import annotations
 
+import asyncio
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -16,8 +18,10 @@ from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from . import i18n, session
-from .routes import pages
+from .. import paths
+from . import i18n, live, session
+from .routes import images, pages, scan
+from .runner import Runner
 
 HERE = Path(__file__).resolve().parent
 HEALTH = "cropdeck ok"  # what /health answers; the launcher recognises a running cropdeck by it
@@ -31,11 +35,25 @@ def create_app(
     dev: bool = False,
     hosts: tuple[str, ...] = (),
     work: session.Session | None = None,
+    watch: bool = True,
 ) -> FastAPI:
     """The app for a server on 127.0.0.1:port. dev adds the design-check helpers; hosts adds
     host names to accept besides 127.0.0.1 and localhost (the tests' client); work is the folder
-    and layout to show (none: setup first)."""
-    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+    and layout to show (none: setup first); watch polls the scans folder for new scans."""
+    hub = live.Hub()
+    runner = Runner(hub)
+
+    @asynccontextmanager
+    async def lifespan(_app):
+        def scans():
+            return work.folder / paths.SCANS if work.folder else None
+
+        task = asyncio.create_task(live.watch(scans, hub)) if watch else None
+        yield
+        if task:
+            task.cancel()
+
+    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     allowed = {f"127.0.0.1:{port}", f"localhost:{port}", *hosts}
     origins = {f"http://127.0.0.1:{port}", f"http://localhost:{port}"}
     work = work or session.Session(None, session.LAYOUTS[session.DEFAULT])
@@ -64,9 +82,17 @@ def create_app(
         )
         return templates.TemplateResponse(request, template, context)
 
+    def fragment(template: str, names, *args, **kw) -> str:
+        """Macros of a partial template, rendered one after another (for htmx and SSE)."""
+        module = templates.env.get_template(template).make_module({"lang": i18n.DEFAULT})
+        return "".join(str(getattr(module, name)(*args, **kw)) for name in names)
+
     @app.get("/health", response_class=PlainTextResponse)
     def health():
         return HEALTH
 
+    app.state.fragment = fragment  # the tests render event parts through it
     pages.register(app, render, work, HERE / "static", dev=dev)
+    scan.register(app, render, fragment, work, hub, runner)
+    images.register(app, work, runner)
     return app

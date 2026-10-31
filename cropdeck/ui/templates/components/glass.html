@@ -1,10 +1,12 @@
 {#- Glass drawing (design: Components > Layout picker glass drawings): the A4 glass seen from above,
     each card outlined at its true place from cropdeck/layouts.py, numbered in counting order.
-    selected draws the cards in teal; dashed shows empty places (a new folder, a missing card). -#}
-{% macro glass(layout, width=150, selected=False, numbered=True, dashed=False) -%}
-<span class="glass" style="width: {{ width }}px" data-selected="{{ 'yes' if selected else 'no' }}"{% if dashed %} data-dashed="yes"{% endif %} aria-hidden="true">
+    selected draws the cards in teal; dashed shows empty places (a new folder, a missing card);
+    backs draws card backs with a flip mark (scan the backs next). -#}
+{% from "components/icons.html" import icon %}
+{% macro glass(layout, width=150, selected=False, numbered=True, dashed=False, backs=False) -%}
+<span class="glass" style="width: {{ width }}px" data-selected="{{ 'yes' if selected else 'no' }}"{% if dashed %} data-dashed="yes"{% endif %}{% if backs %} data-backs="yes"{% endif %} aria-hidden="true">
   {%- for x, y in layout.slots() %}
-  <span class="glass-card" style="left: {{ '%.2f' % (x / 210 * 100) }}%; top: {{ '%.2f' % (y / 297 * 100) }}%; width: {{ '%.2f' % (layout.card[0] / 210 * 100) }}%; height: {{ '%.2f' % (layout.card[1] / 297 * 100) }}%">{% if numbered %}{{ loop.index }}{% endif %}</span>
+  <span class="glass-card" style="left: {{ '%.2f' % (x / 210 * 100) }}%; top: {{ '%.2f' % (y / 297 * 100) }}%; width: {{ '%.2f' % (layout.card[0] / 210 * 100) }}%; height: {{ '%.2f' % (layout.card[1] / 297 * 100) }}%">{% if backs %}{{ icon("flip", 14) }}{% elif numbered %}{{ loop.index }}{% endif %}</span>
   {%- endfor %}
 </span>
 {%- endmacro %}
