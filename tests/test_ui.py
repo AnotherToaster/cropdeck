@@ -278,6 +278,20 @@ class Launcher(unittest.TestCase):
             s.listen()
             self.assertFalse(server.free(s.getsockname()[1]))
 
+    def test_another_address_is_one_named_address_never_every_network(self):
+        self.assertIsNone(server.check_host("100.64.0.1"))
+        for host in ("0.0.0.0", "::", "atlas"):
+            self.assertIsNotNone(server.check_host(host), host)
+        self.assertEqual(server.url(8737, "fd7a::1"), "http://[fd7a::1]:8737/")
+
+    def test_the_address_bound_to_is_answered_and_others_still_refused(self):
+        c = TestClient(ui_app.create_app(PORT, address="100.64.0.1:8737"))
+        ok = c.get("/health", headers={"host": "100.64.0.1:8737"})
+        self.assertEqual(ok.status_code, 200)
+        self.assertEqual(c.get("/health", headers={"host": "100.64.0.2:8737"}).status_code, 421)
+        post = c.post("/process", headers={"host": "100.64.0.1:8737", "origin": "http://evil"})
+        self.assertEqual(post.status_code, 403)
+
 
 if __name__ == "__main__":
     unittest.main()

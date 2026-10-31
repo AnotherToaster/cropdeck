@@ -1,8 +1,9 @@
 """
 The FastAPI app behind `cropdeck ui`: server-rendered pages (Jinja2) and their static files.
 
-It only ever answers the browser on this computer. Two checks enforce that beyond the 127.0.0.1
-bind: the Host header must name this server (a foreign host is a DNS-rebinding attempt), and a
+It only ever answers the browser on this computer (or, with `cropdeck ui --host`, on the one
+address it was bound to). Two checks enforce that beyond the bind: the Host header must name this
+server (a foreign host is a DNS-rebinding attempt), and a
 request that changes something must not come from a foreign Origin (another website posting to
 it). Requests that change state are never GETs, so a link or an image elsewhere cannot trigger one.
 """
@@ -36,10 +37,12 @@ def create_app(
     hosts: tuple[str, ...] = (),
     work: session.Session | None = None,
     watch: bool = True,
+    address: str | None = None,
 ) -> FastAPI:
     """The app for a server on 127.0.0.1:port. dev adds the design-check helpers; hosts adds
     host names to accept besides 127.0.0.1 and localhost (the tests' client); work is the folder
-    and layout to show (none: setup first); watch polls the scans folder for new scans."""
+    and layout to show (none: setup first); watch polls the scans folder for new scans; address
+    ("100.64.0.1:8737") is the one other address the server is bound to (`cropdeck ui --host`)."""
     hub = live.Hub()
     runner = Runner(hub)
 
@@ -56,6 +59,9 @@ def create_app(
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     allowed = {f"127.0.0.1:{port}", f"localhost:{port}", *hosts}
     origins = {f"http://127.0.0.1:{port}", f"http://localhost:{port}"}
+    if address:
+        allowed.add(address)
+        origins.add(f"http://{address}")
     work = work or session.Session(None, session.LAYOUTS[session.DEFAULT])
 
     templates = Jinja2Templates(directory=HERE / "templates")
