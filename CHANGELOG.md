@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.3.0](https://github.com/AnotherToaster/cropdeck/compare/v0.2.0...v0.3.0) (2026-10-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* UI scan loop and guard stops; a tray that does not add up stops the run ([#23](https://github.com/AnotherToaster/cropdeck/issues/23))
+
+### Features
+
+* UI scan loop and guard stops; a tray that does not add up stops the run ([#23](https://github.com/AnotherToaster/cropdeck/issues/23)) ([d2ef09d](https://github.com/AnotherToaster/cropdeck/commit/d2ef09d210b945c5680df1ad865ff93158a4968e))
+* **ui:** basic release - failing runs said on the page, only built pages offered, README UI-first ([#25](https://github.com/AnotherToaster/cropdeck/issues/25)) ([68967b6](https://github.com/AnotherToaster/cropdeck/commit/68967b69e38ff2aea800823f4d4be8d663e0610d))
+* **ui:** setup and review; typed fields kept from recognition; --host ([#24](https://github.com/AnotherToaster/cropdeck/issues/24)) ([f080b3e](https://github.com/AnotherToaster/cropdeck/commit/f080b3e69697bc13d1d023cdc9cc0d746ac90759))
+
+
+### Bug Fixes
+
+* shorter, functional UI texts ([#20](https://github.com/AnotherToaster/cropdeck/issues/20)) ([2694806](https://github.com/AnotherToaster/cropdeck/commit/2694806b24c245d977c19c3dd8d2d7decaf49dab))
+
+
+### Documentation
+
+* audit after the move to atlas ([#22](https://github.com/AnotherToaster/cropdeck/issues/22)) ([c967049](https://github.com/AnotherToaster/cropdeck/commit/c9670491a9d224de58f9e2645a2f622e0a1ef564))
+
 ## [0.2.0](https://github.com/AnotherToaster/cropdeck/compare/v0.1.0...v0.2.0) (2026-10-31)
 
 
