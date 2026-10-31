@@ -41,8 +41,8 @@ have already cut (`sorted/.cardsplit-state.json`), so finished scans are simply 
 
 Either works, and they mix freely:
 
-- scan one tray of fronts, flip, scan the backs, run → six more cards
-- scan ten trays over an evening, run once → sixty more cards
+- scan one tray of fronts, flip, scan the backs, run → eight more cards
+- scan ten trays over an evening, run once → eighty more cards
 
 ```bash
 cropdeck run mycards                  # mycards/ holds scans/ and receives sorted/

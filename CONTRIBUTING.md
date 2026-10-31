@@ -8,7 +8,7 @@ Thanks for helping. A few things keep cropdeck reliable.
 git clone https://github.com/AnotherToaster/cropdeck.git && cd cropdeck
 python -m venv .venv && . .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -U pip
-pip install -e ".[all,dev]"
+pip install -e ".[all,dev,test]"
 pre-commit install                                 # ruff lint + format before every commit
 ```
 

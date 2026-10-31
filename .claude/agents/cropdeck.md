@@ -1,6 +1,6 @@
 ---
 name: cropdeck
-description: Works on the cropdeck pipeline (the cropdeck package: split, name, track) — improving detection, pairing, OCR naming or the tracker, adding card sizes or languages, fixing a bug reported with a scan. Use it for any change to this repository's code, tests or docs.
+description: Works on cropdeck (the package: split, name, track and the browser interface) — improving detection, pairing, OCR naming or the tracker, adding card sizes or languages, fixing a bug reported with a scan. Use it for any change to this repository's code, tests or docs.
 tools: Read, Edit, Write, Bash, Grep, Glob
 ---
 
@@ -13,9 +13,10 @@ change anything; they explain why each step is built the way it is, including th
 1. **A front stays with its own back.** Pairing is by position on the platen (`match_by_position`),
    never by list order. The leading card number in file names is the only link between front and
    back; OCR must never change it (`FRONT_RE` only matches the split step's raw `card_NNNN_front`).
-2. **Refuse rather than guess.** Every guard (card counts, "is this really the backs?",
-   slot geometry) stops the run *before writing anything* and skips later trays. Never weaken a
-   guard to make a scan pass; find out why it failed.
+2. **Refuse rather than guess.** Nothing is written for a tray that fails a guard. A card-count
+   mismatch skips that tray only; a failed backs check or slot check stops the run, and later trays
+   wait. The summary names every tray left out and the command exits 1. Never weaken a guard to
+   make a scan pass; find out why it failed.
 3. **True scale.** Cards are rotated and cropped with scale fixed at 1.0 — never resized to a
    nominal box. The rectangle is normalised to the smallest rotation first (see `extract_card`).
 4. **Millimetres, not pixels.** Thresholds are in mm and converted through the measured dpi.
@@ -31,7 +32,7 @@ change anything; they explain why each step is built the way it is, including th
   images or artwork to this repository** (they are copyrighted); a bug report with a real scan is
   debugged locally, then reproduced with a synthetic tray.
 - Keep `docs/` true: a change the docs do not describe is not finished.
-- Small functions, one job each; no duplicated logic between the three scripts.
+- Small functions, one job each; one module per job, nothing duplicated between them.
 - The tools must keep working offline on Linux, macOS and Windows.
 
 ## Map
@@ -41,7 +42,9 @@ change anything; they explain why each step is built the way it is, including th
 | `cropdeck/cli.py` | the `cropdeck` command: `run` (crop + pair; `--names`, `--tracker` opt-in), `status`, and the steps below |
 | `cropdeck/paths.py` | default folders from `$CROPDECK_HOME` - the only place they are defined |
 | `cropdeck/split.py` | the split step: options, running trays single or paired, the order of guards |
-| `cropdeck/card.py` | card size in mm, dpi detection |
+| `cropdeck/card.py` | card size in mm, dpi detection, the `_front` / `_rear` file suffixes |
+| `cropdeck/layouts.py` | the four layouts (s8 default, s6, u6, u9) - the only table of them |
+| `cropdeck/manifest.py` | reading and writing `cards.csv`, keeping every column |
 | `cropdeck/imageio.py` | Unicode-safe image read/write, save settings, image extensions |
 | `cropdeck/detect.py` | backing distance, card-shaped rects, touching cards, reading order, full-res refine |
 | `cropdeck/extract.py` | rotate + fixed-window crop at true scale (`extract_card`) |
@@ -50,6 +53,8 @@ change anything; they explain why each step is built the way it is, including th
 | `cropdeck/state.py` | resume state (`.cardsplit-state.json`) |
 | `cropdeck/output.py` | debug overlays, per-tray proof sheets, `cards.csv` |
 | `cropdeck/name.py` | OCR name and collector number, fuzzy match against `data/pokemon_names.json`, rename pairs |
-| `cropdeck/track.py` | `cards.csv` → `Karten-Tracker.xlsx` (German sheet names), edits preserved |
-| `tests/` | synthetic trays and behaviour tests |
-| `docs/` | scanning guide, how it works, tracker |
+| `cropdeck/track.py` | `cards.csv` → `card-tracker.xlsx`, edits preserved |
+| `cropdeck/texts.py` | the tracker's languages (`data/locales/<code>.json`) and currencies |
+| `cropdeck/ui/` | the browser interface: `server.py` (launcher), `app.py`, `routes/`, `templates/` (pages + one macro per component), `static/`; its strings in `data/locales/ui/` |
+| `tests/` | synthetic trays and behaviour tests (`test_ui.py` needs the `ui` and `test` extras) |
+| `docs/` | install on Windows, scanning guide, how it works, tracker |
