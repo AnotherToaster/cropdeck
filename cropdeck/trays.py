@@ -14,6 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from .imageio import IMAGE_EXTS
 from .state import scan_key
 
 DONE, READY, NEEDS_BACKS, STOPPED, SKIPPED = "done", "ready", "needs-backs", "stopped", "skipped"
@@ -32,6 +33,13 @@ class Tray:
     @property
     def keys(self) -> list[str]:
         return [scan_key(self.front), scan_key(self.back) if self.back else ""]
+
+
+def scans_in(folder: Path) -> list[Path]:
+    """The scans in a folder, sorted by name - the order trays pair in."""
+    if not folder.is_dir():
+        return []
+    return sorted(f for f in folder.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS)
 
 
 def choices(state: dict, n: int) -> dict:

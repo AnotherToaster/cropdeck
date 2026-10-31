@@ -16,7 +16,6 @@ import sys
 from pathlib import Path
 
 from . import cut, manifest, paths, process, trays
-from .imageio import IMAGE_EXTS
 from .output import write_manifest
 from .state import load_state, save_state, scan_key
 
@@ -251,9 +250,7 @@ def run(args) -> int:
         pth = Path(item).expanduser()
         if pth.is_dir():
             roots.append(pth)
-            files += sorted(
-                f for f in pth.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS
-            )
+            files += trays.scans_in(pth)
         elif pth.is_file():
             roots.append(pth.parent)
             files.append(pth)
@@ -314,9 +311,9 @@ def run(args) -> int:
     if n and not args.no_sheet and args.pair:
         print(f"  Check the pairings at a glance: {out_dir / '_pairs'}")
     total = state["next"] - 1
-    trays = len([k for k in state["done"]]) // (2 if args.pair else 1)
+    tray_count = len(state["done"]) // (2 if args.pair else 1)
     print("\n--- where you are ------------------------------------------")
-    print(f"  {total} card(s) cut so far, from {trays} tray(s).")
+    print(f"  {total} card(s) cut so far, from {tray_count} tray(s).")
     print(f"  Next card will be number {state['next']:04d}.")
     print("  Finished scans can stay in the scans folder - they are never cut twice.")
     print("------------------------------------------------------------")
