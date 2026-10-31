@@ -16,7 +16,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 
 from ... import paths
 from ...layouts import DEFAULT, LAYOUTS
-from .. import folders, forms, session
+from .. import folders, forms, session, wsl
 
 PARTIAL = "partials/setup.html"
 
@@ -30,7 +30,8 @@ class SetupView:
     @property
     def scans(self) -> str:
         """Where the scanner saves to, for the path box; empty until the path is absolute."""
-        p = Path(self.folder.strip()).expanduser() if self.folder.strip() else None
+        typed = wsl.from_windows(self.folder.strip())
+        p = Path(typed).expanduser() if typed else None
         return str(p / paths.SCANS) if p and p.is_absolute() else ""
 
     @property

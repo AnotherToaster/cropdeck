@@ -100,6 +100,46 @@ class Setup(unittest.TestCase):
         self.assertIn("This computer", top)
         self.assertNotIn("data-use", top)  # the top is no folder to use
 
+    def test_an_entry_that_cannot_be_looked_at_does_not_hide_the_others(self):
+        class Entry:  # as os.scandir yields them on /mnt/c: pagefile.sys refuses a stat
+            def __init__(self, name, error=None):
+                self.name, self.path, self.error = name, str(self.home_ / name), error
+
+            def is_dir(self):
+                if self.error:
+                    raise self.error
+                return True
+
+        Entry.home_ = self.home
+        found = [
+            Entry("Users"),
+            Entry("pagefile.sys", PermissionError(13, "denied")),
+            Entry("Windows"),
+        ]
+
+        class Scan(list):
+            def __enter__(self):
+                return iter(self)
+
+            def __exit__(self, *exc):
+                return False
+
+        with mock.patch("cropdeck.ui.folders.os.scandir", return_value=Scan(found)):
+            html = self.c.get("/setup/browse", params={"folder": str(self.home)}).text
+        self.assertEqual(
+            re.findall(r"<span>([^<]+)</span></button></li>", html), ["Users", "Windows"]
+        )
+        self.assertEqual(alert(html), [])
+
+    def test_inside_wsl_a_windows_path_is_its_drive_under_mnt(self):
+        from cropdeck.ui import wsl
+
+        linux, inside = "Linux version 6.6 generic", "Linux version 6.6 microsoft-standard-WSL2"
+        self.assertEqual(wsl.from_windows(r"C:\Users\Dom\Cards", inside), "/mnt/c/Users/Dom/Cards")
+        self.assertEqual(wsl.from_windows("D:/", inside), "/mnt/d")
+        self.assertEqual(wsl.from_windows(r"C:\Users", linux), r"C:\Users")
+        self.assertEqual(wsl.from_windows("/home/dom", inside), "/home/dom")
+
     def test_a_new_folder_is_made_inside_the_one_shown(self):
         r = self.c.post("/setup/browse/new", data={"parent": str(self.home), "name": "Pokemon"})
         self.assertTrue((self.home / "Pokemon").is_dir())
