@@ -35,11 +35,18 @@ the rest where it can be checked:
 
 ## Install
 
-You need Python 3.10 or newer.
+You need Python 3.10 or newer. On Linux and macOS, install it into a virtual environment of its
+own (Ubuntu: `sudo apt install python3-venv` first):
 
 ```bash
+python3 -m venv ~/cropdeck-env
+source ~/cropdeck-env/bin/activate
 pip install "cropdeck[all] @ https://github.com/AnotherToaster/cropdeck/archive/refs/heads/main.zip"
 ```
+
+In a new terminal, `source ~/cropdeck-env/bin/activate` again before using `cropdeck`. (A plain
+`pip install` outside one fails on Ubuntu: 24.04 refuses it, and 22.04's own pip builds cropdeck
+as "unknown".)
 
 **On Windows**, follow [docs/install-windows.md](docs/install-windows.md) - Python, cropdeck and
 Tesseract step by step, tested on Windows.
