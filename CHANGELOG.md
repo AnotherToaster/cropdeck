@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/AnotherToaster/cropdeck/compare/v0.3.0...v0.3.1) (2026-10-31)
+
+
+### Bug Fixes
+
+* install in a virtual environment; the folder browser works on /mnt/c and with Windows paths in WSL ([#26](https://github.com/AnotherToaster/cropdeck/issues/26)) ([1b8d58f](https://github.com/AnotherToaster/cropdeck/commit/1b8d58f6e4e394cd2ed4d2603540169c5b8f4106))
+
 ## [0.3.0](https://github.com/AnotherToaster/cropdeck/compare/v0.2.0...v0.3.0) (2026-10-31)
 
 
