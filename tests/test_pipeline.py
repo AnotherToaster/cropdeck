@@ -19,7 +19,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tests"))
 import synth  # noqa: E402
 
-from cropdeck import name as cardname  # noqa: E402
+from cropdeck import name as name_step  # noqa: E402
 
 
 def run(*args):
@@ -181,15 +181,15 @@ class Command(unittest.TestCase):
 
 class Names(unittest.TestCase):
     def test_noisy_ocr_tokens_match_a_name_in_any_language(self):
-        index = cardname.load_names()
-        name, en, _ = cardname.best_name(["Charrnander", "—"], index, 0.82)  # OCR read 'm' as 'rn'
+        index = name_step.load_names()
+        name, en, _ = name_step.best_name(["Charrnander", "—"], index, 0.82)  # OCR read 'm' as 'rn'
         self.assertEqual(en, "Charmander")
-        name, en, _ = cardname.best_name(["Pummeluff"], index, 0.82)
+        name, en, _ = name_step.best_name(["Pummeluff"], index, 0.82)
         self.assertEqual((name, en), ("Pummeluff", "Jigglypuff"))
 
     def test_short_tokens_are_never_guessed(self):
-        index = cardname.load_names()
-        self.assertIsNone(cardname.best_name(["Muk", "ab"], index, 0.82)[0])
+        index = name_step.load_names()
+        self.assertIsNone(name_step.best_name(["Muk", "ab"], index, 0.82)[0])
 
     @unittest.skipUnless(shutil.which("tesseract"), "needs the Tesseract engine")
     def test_naming_keeps_every_row_and_your_own_columns(self):
@@ -250,8 +250,8 @@ class Names(unittest.TestCase):
         self.assertEqual(list(folder.glob("*_back.png")), [])
 
     def test_renamed_files_are_not_matched_again(self):
-        self.assertTrue(cardname.FRONT_RE.match("card_0007_front"))
-        self.assertIsNone(cardname.FRONT_RE.match("0001_Charmander_9-25_front"))
+        self.assertTrue(name_step.FRONT_RE.match("card_0007_front"))
+        self.assertIsNone(name_step.FRONT_RE.match("0001_Charmander_9-25_front"))
 
 
 class Tracker(unittest.TestCase):
