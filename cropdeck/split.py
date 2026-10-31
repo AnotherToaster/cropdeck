@@ -15,13 +15,9 @@ import argparse
 import sys
 from pathlib import Path
 
-from . import cut, paths
-from .card import FRONT, REAR
-from .detect import backing_color
-from .guards import back_refs, check_backs, learn_back, thumbs
+from . import cut, manifest, paths, process, trays
 from .imageio import IMAGE_EXTS
-from .output import pair_sheet, write_manifest
-from .pairing import match_by_position
+from .output import write_manifest
 from .state import load_state, save_state, scan_key
 
 
@@ -31,10 +27,6 @@ def detect(path: Path, out_dir: Path, args):
     for note in notes:
         print(f"  ! {note}")
     return img, dpi, rects
-
-
-render = cut.render
-emit = cut.write
 
 
 def run_single(files, out_dir: Path, args, rows: list, state: dict) -> int:
@@ -53,7 +45,7 @@ def run_single(files, out_dir: Path, args, rows: list, state: dict) -> int:
                 if args.flat
                 else f"{path.stem}_card{idx:02d}{args.format}"
             )
-            emit(render(img, rect, dpi, args, args.rotate), out_dir, name, args)
+            cut.write(cut.render(img, rect, dpi, args, args.rotate), out_dir, name, args)
             rows.append(
                 {
                     "card": f"{card_no:04d}",
@@ -70,97 +62,49 @@ def run_single(files, out_dir: Path, args, rows: list, state: dict) -> int:
     return n
 
 
-def run_paired(files, out_dir: Path, args, rows: list, state: dict) -> int:
-    """Fronts and backs alternate: scan 1 = fronts, scan 2 = the same tray's backs, ..."""
-    if len(files) % 2:
-        print(
-            f"  ! odd number of scans ({len(files)}) - the last one has no partner "
-            f"and will be skipped"
-        )
-    n = 0
-    # an odd last scan has no partner; it was reported above and is left out here
-    pairs = list(zip(files[0::2], files[1::2], strict=False))
-    todo = [p for p in pairs if scan_key(p[0]) not in state["done"]]
-    if len(todo) < len(pairs):
-        print(f"  ({len(pairs) - len(todo)} tray(s) already done - skipping)")
-    for f_path, b_path in todo:
-        f_img, f_dpi, f_rects = detect(f_path, out_dir, args)
-        b_img, b_dpi, b_rects = detect(b_path, out_dir, args)
+BACKS_KINDS = (process.NOTBACKS, process.SWAPPED)
 
-        bg_f, bg_b = backing_color(f_img), backing_color(b_img)
-        if len(f_rects) != len(b_rects):
+
+def run_paired(files, out_dir: Path, args, state: dict, append: bool) -> tuple[int, bool]:
+    """Fronts and backs alternate: scan 1 = fronts, scan 2 = the same tray's backs, ...
+    Prints process.run's events; returns (cards written, whether a tray was refused)."""
+    folder = trays.build(files, state, manifest.read(out_dir))
+    done = [t for t in folder if t.status == trays.DONE]
+    if done:
+        print(f"  ({len(done)} tray(s) already done - skipping)")
+    for t in folder:
+        if t.status == trays.SKIPPED:
+            print(f"  - tray {t.n} ({t.front.name}) is skipped")
+    n, stopped = 0, False
+    for event in process.run(trays.runnable(folder), args, state, out_dir, append):
+        if isinstance(event, process.Note):
+            print(f"  ! {event.text}")
+        elif isinstance(event, process.TrayDone):
+            t = event.tray
+            n += event.last - event.first + 1
             print(
-                f"  ! MISMATCH {f_path.name} has {len(f_rects)} card(s) but "
-                f"{b_path.name} has {len(b_rects)} -- pairing skipped for this tray, "
-                f"fix the scan and re-run"
+                f"  + {t.front.name} / {t.back.name}: {event.last - event.first + 1} card(s) paired"
             )
-            state.setdefault("_skipped", []).append(f"{f_path.name} / {b_path.name}")
-            continue
-        if not f_rects:
-            state.setdefault("_skipped", []).append(f"{f_path.name} / {b_path.name}")
-            continue
-
-        f_th = thumbs(f_img, f_rects, f_dpi, args, bg_f)
-        b_th = thumbs(b_img, b_rects, b_dpi, args, bg_b)
-        refs = back_refs(state)
-        problem = None if args.no_back_check else check_backs(f_th, b_th, refs)
-        if problem:
+        elif isinstance(event, process.TrayStopped):
+            stopped = True
+            t = event.tray
+            hint = " (or --no-back-check to force it through)" if event.kind in BACKS_KINDS else ""
             print(
-                f"  ! STOPPED on {f_path.name} / {b_path.name}: {problem[1]}\n"
-                f"    Nothing was written for this tray, and no later tray was "
-                f"touched either.\n    Fix the scans and run again "
-                f"(or --no-back-check to force it through)."
+                f"  ! STOPPED on {t.front.name} / {t.back.name}: {event.message}\n"
+                f"    Nothing was written for this tray, and no later tray was touched either.\n"
+                f"    Fix the scans and run again{hint}, or choose a fix in `cropdeck ui`."
             )
-            state["_stopped"] = True
-            break
-        if not refs:
-            learn_back(state, b_th)
-
-        order, why = match_by_position(
-            f_rects, b_rects, args.back_order == "mirror", f_img.shape[1]
-        )
-        if order is None:
+    if not stopped:
+        waiting = trays.next_up(folder)
+        if waiting and waiting.status == trays.NEEDS_BACKS:
+            print(f"  ! tray {waiting.n} ({waiting.front.name}) waits for its backs scan")
+        elif waiting and waiting.status == trays.STOPPED:
+            stopped = True
             print(
-                f"  ! STOPPED on {f_path.name} / {b_path.name}: {why}\n"
-                f"    Nothing was written for this tray."
+                f"  ! tray {waiting.n} ({waiting.front.name}) stopped earlier: "
+                f"{waiting.stop['message']}\n    Fix the scans, or choose a fix in `cropdeck ui`."
             )
-            state["_stopped"] = True
-            break
-
-        sheet = []
-        for i, f_rect in enumerate(f_rects):
-            n += 1
-            card_no = state["next"]
-            state["next"] += 1
-            fn = f"{args.prefix}{card_no:04d}_{FRONT}{args.format}"
-            bn = f"{args.prefix}{card_no:04d}_{REAR}{args.format}"
-            f_card = render(f_img, f_rect, f_dpi, args, args.rotate)
-            b_card = render(
-                b_img,
-                b_rects[order[i]],
-                b_dpi,
-                args,
-                args.rotate_back if args.rotate_back is not None else args.rotate,
-            )
-            emit(f_card, out_dir, fn, args)
-            emit(b_card, out_dir, bn, args)
-            sheet.append((f"{card_no:04d}", f_card, b_card))
-            rows.append(
-                {
-                    "card": f"{card_no:04d}",
-                    "front": fn,
-                    "back": bn,
-                    "scan_front": f_path.name,
-                    "scan_back": b_path.name,
-                    "position": i + 1,
-                }
-            )
-        state["done"][scan_key(f_path)] = len(f_rects)
-        state["done"][scan_key(b_path)] = len(f_rects)
-        if not args.no_sheet and sheet:
-            pair_sheet(sheet, out_dir / "_pairs" / f"{f_path.stem}_pairs.jpg")
-        print(f"  + {f_path.name} / {b_path.name}: {len(f_rects)} card(s) paired")
-    return n
+    return n, stopped
 
 
 def add_arguments(p: argparse.ArgumentParser):
@@ -287,6 +231,19 @@ def add_arguments(p: argparse.ArgumentParser):
     )
 
 
+def options(**overrides) -> argparse.Namespace:
+    """split's options at their defaults, with overrides - for callers that are not the command
+    line (the browser interface, the tests)."""
+    p = argparse.ArgumentParser()
+    add_arguments(p)
+    opts = p.parse_args([])
+    for k, v in overrides.items():
+        if not hasattr(opts, k):
+            raise TypeError(f"unknown split option {k!r}")
+        setattr(opts, k, v)
+    return opts
+
+
 def run(args) -> int:
     files: list[Path] = []
     roots: list[Path] = []
@@ -330,38 +287,31 @@ def run(args) -> int:
         for t in todo:
             print(f"  - {t}")
         return 0
-    rows: list = []
-    n = (
-        run_paired(files, out_dir, args, rows, state)
-        if args.pair
-        else run_single(files, out_dir, args, rows, state)
-    )
-    stopped = state.pop("_stopped", False)
-    skipped = state.pop("_skipped", [])
-    save_state(out_dir, state)
+    if args.pair:
+        n, stopped = run_paired(files, out_dir, args, state, append=not args.restart)
+        man = out_dir / manifest.FILE
+    else:
+        rows: list = []
+        n, stopped = run_single(files, out_dir, args, rows, state), False
+        save_state(out_dir, state)
+        man = write_manifest(rows, out_dir, append=not args.restart) if rows else None
 
-    if rows:
-        man = write_manifest(rows, out_dir, append=not args.restart)
+    if n:
         print(
             f"\nDone: {n} card{'s (front+back)' if args.pair else ' image(s)'} "
             f"-> {out_dir}\nManifest: {man}"
         )
     elif stopped:
         print("\nStopped before writing anything - see the message above.")
-    elif not skipped:
+    else:
         print(
             "\nDone: nothing new - every scan in that folder has already been cut."
             "\n(Add new scans and run again, or pass --restart to redo the lot.)"
         )
-    if skipped:
-        print(f"\nNothing written for {len(skipped)} tray(s) - see the messages above:")
-        for tray in skipped:
-            print(f"  - {tray}")
-        print("Fix those scans and run again; they are picked up then.")
     if args.debug:
         print(f"Debug overlays in {out_dir / '_debug'}")
 
-    if rows and not args.no_sheet and args.pair:
+    if n and not args.no_sheet and args.pair:
         print(f"  Check the pairings at a glance: {out_dir / '_pairs'}")
     total = state["next"] - 1
     trays = len([k for k in state["done"]]) // (2 if args.pair else 1)
@@ -370,5 +320,5 @@ def run(args) -> int:
     print(f"  Next card will be number {state['next']:04d}.")
     print("  Finished scans can stay in the scans folder - they are never cut twice.")
     print("------------------------------------------------------------")
-    # a tray that was skipped or stopped is a problem the caller must not miss
-    return 1 if stopped or skipped else 0
+    # a tray that was refused is a problem the caller must not miss
+    return 1 if stopped else 0
