@@ -42,7 +42,7 @@ class SetupView:
 
 def register(app, render, fragment, work, runner):
     def page(request: Request, v: SetupView, status: int = 200) -> HTMLResponse:
-        r = render(request, "pages/setup.html", current=None, v=v)
+        r = render(request, "pages/setup.html", current="setup", v=v)
         r.status_code = status
         return r
 

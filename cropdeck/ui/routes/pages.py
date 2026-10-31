@@ -1,8 +1,7 @@
 """
-The pages of the shell still waiting for their phase (handoff: collection 7, settings 8), each
-its title inside the shell until then; the dev-only components page; and the two files the
-installed app window (PWA) needs at the site root. Scan, stop, setup and review have their own
-modules.
+The dev-only components page, the offline page, and the two files the installed app window (PWA)
+needs at the site root. Scan, stop, setup and review have their own modules; collection and
+settings (handoff phases 7 and 8) are not built yet, and the settings icon opens setup meanwhile.
 """
 
 from __future__ import annotations
@@ -14,17 +13,6 @@ from fastapi.responses import FileResponse
 
 
 def register(app, render, work, static: Path, dev: bool = False):
-    def screen(request: Request, current: str):
-        return render(request, "pages/placeholder.html", current=current)
-
-    @app.get("/collection")
-    def collection(request: Request):
-        return screen(request, "collection")
-
-    @app.get("/settings")
-    def settings(request: Request):
-        return screen(request, "settings")
-
     @app.get("/offline")
     def offline(request: Request):
         return render(request, "pages/offline.html", current=None)

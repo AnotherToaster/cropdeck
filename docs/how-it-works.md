@@ -191,7 +191,9 @@ Built in phases from the design handoff:
   E edit, Space true size (63 × 88 mm at 100 % display scaling). What you type is listed in the
   row's `typed` column, and `cropdeck name` never writes over it. Recognition itself does not run
   in the interface yet: there, cards start with empty fields.
-- Collection and settings follow.
+- Collection and settings follow; until then the settings icon opens setup.
+- If processing fails with an error (a bug, not a refused tray), the scan page says so above
+  the next step, and the tray can be processed again.
 
 Thumbnails are small JPEGs cached in `sorted/_thumbs/`; the scans folder is only read.
 

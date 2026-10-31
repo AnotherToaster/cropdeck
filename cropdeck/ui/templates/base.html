@@ -20,7 +20,7 @@
     </a>
     {% block header %}
     <nav class="nav" aria-label="{{ t('nav.label') }}">
-      {% for key, href in [("scan", "/"), ("review", "/review"), ("collection", "/collection")] %}
+      {% for key, href in [("scan", "/"), ("review", "/review")] %}
       <a href="{{ href }}"{% if current == key %} aria-current="page"{% endif %}>
         {{- t("nav." ~ key) -}}
         {% if key == "review" %}{{ review_pill(review_count) }}{% endif %}
@@ -32,7 +32,7 @@
       <span class="chip" title="{{ t('chip.folder') }}: {{ work.folder }}">{{ icon("folder", 16) }}<span class="path">{{ work.folder }}</span></span>
       {% endif %}
       <span class="chip" title="{{ t('chip.layout') }}">{{ t("layouts." ~ work.layout.id ~ ".name") }}</span>
-      <a class="icon-button" href="/settings" aria-label="{{ t('nav.settings') }}"{% if current == "settings" %} aria-current="page"{% endif %}>{{ icon("settings") }}</a>
+      <a class="icon-button" href="/setup" aria-label="{{ t('nav.settings') }}"{% if current == "setup" %} aria-current="page"{% endif %}>{{ icon("settings") }}</a>
     </div>
     {% endblock %}
   </header>

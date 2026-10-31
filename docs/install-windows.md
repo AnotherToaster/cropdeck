@@ -37,8 +37,16 @@ If cropdeck cannot find it, it says so and tells you where to get it.
 
 ## 4. First run
 
-Make a folder for your cards with a `scans` folder inside, for example `Documents\cards\scans`,
-and let the scanner save there (see [scanning.md](scanning.md) for the settings). Then:
+```powershell
+py -m cropdeck ui
+```
+
+The browser opens on setup: choose or make a folder for your cards (for example
+`Documents\cards`), pick how the cards lie on the glass, and set the scans path it shows as your
+scanner's save folder (see [scanning.md](scanning.md) for the settings). From then on the page
+shows the next step. Folder names with spaces or umlauts are fine.
+
+Or on the command line, with a `scans` folder inside your cards folder:
 
 ```powershell
 py -m cropdeck run "$HOME\Documents\cards"
@@ -46,9 +54,9 @@ py -m cropdeck run "$HOME\Documents\cards" --names --tracker
 ```
 
 The first line crops and pairs; the second also reads names and keeps the spreadsheet
-`card-tracker.xlsx` next to the `scans` folder. Folder names with spaces or umlauts are fine.
+`card-tracker.xlsx` next to the `scans` folder.
 
-`py -m cropdeck` always works. The shorter `cropdeck run …` works too if pip's script folder is on
+`py -m cropdeck` always works. The shorter `cropdeck ui` and `cropdeck run …` work too if pip's script folder is on
 your PATH - pip prints a warning naming that folder when it is not.
 
 ## Updating

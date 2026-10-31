@@ -2,11 +2,15 @@
 Processing from the browser: one run at a time, in a worker thread (cutting cards is CPU-bound
 OpenCV work and must not hold up the server). The run is the same process.run() the command line
 uses; this only keeps track of how far it is, for the page, and publishes each event to the hub.
+
+A run that ends in an error (a bug, not a refused tray) keeps the error for the page until the
+next run starts; the traceback goes to the window cropdeck runs in.
 """
 
 from __future__ import annotations
 
 import threading
+import traceback
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -42,6 +46,7 @@ class Runner:
     def __init__(self, hub: Hub):
         self.hub = hub
         self.progress: Progress | None = None
+        self.failure: tuple[int, str] | None = None  # (tray, error) of the last run, if it failed
         self._lock = threading.Lock()
 
     @property
@@ -62,6 +67,7 @@ class Runner:
             if not todo:
                 return False
             self.progress = Progress([t.n for t in todo], expected)
+            self.failure = None
         opts = split.options(expect=expected)
         threading.Thread(
             target=self._work, args=(todo, opts, state, out), name="cropdeck-run", daemon=True
@@ -84,6 +90,9 @@ class Runner:
                     thumbs.card(out / event.front, out)
                     thumbs.card(out / event.rear, out)
                 self._track(p, event)
+        except Exception as e:  # a bug: the page says so instead of just going quiet
+            traceback.print_exc()
+            self.failure = (p.tray, f"{type(e).__name__}: {e}")
         finally:
             with self._lock:
                 self.progress = None

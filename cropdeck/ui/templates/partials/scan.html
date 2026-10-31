@@ -21,6 +21,13 @@
 {%- endif -%}
 {%- endmacro %}
 
+{#- ---- the last run failed (a bug): said above the next step, until the next run ---- -#}
+{% macro failure(v, oob=False) -%}
+<div id="run-failure"{{ oob_attr(oob) }}>
+  {%- if v.failure %}<p class="run-failure" role="alert">{{ icon("stop", 18) }}<span>{{ t("scan.failed", n=v.failure[0], error=v.failure[1]) }}</span></p>{% endif -%}
+</div>
+{%- endmacro %}
+
 {#- ---- the next-step panel: exactly one, by state ---- -#}
 {% macro next_step(v, oob=False) -%}
 {%- if v.state == "empty" -%}
@@ -191,7 +198,7 @@
       <div>
         <strong>{{ t("layouts." ~ v.layout.id ~ ".name") }}</strong>
         <span class="muted">{{ t("layouts." ~ v.layout.id ~ ".grid") }}</span>
-        <a href="/settings">{{ t("scan.change_layout") }}</a>
+        <a href="/setup">{{ t("scan.change_layout") }}</a>
       </div>
     </div>
   </section>

@@ -131,6 +131,26 @@ class ScanLoop(unittest.TestCase):
         self.client.post("/tray/1/unskip", headers=HX)
         self.assertIn("Tray 1 stopped", self.next_step(self.page()))
 
+    def test_a_run_that_fails_says_so_on_the_page_and_can_run_again(self):
+        from unittest import mock
+
+        from cropdeck import process
+
+        self.add_tray(0)
+
+        def broken(*args, **kwargs):
+            raise RuntimeError("disk on fire")
+            yield  # a generator, as process.run is
+
+        with mock.patch.object(process, "run", broken), mock.patch("traceback.print_exc"):
+            self.process()
+        html = self.page()
+        self.assertIn('role="alert"', html)
+        self.assertIn("Processing failed on tray 1: RuntimeError: disk on fire.", html)
+        self.assertIn("Process", self.next_step(html))  # the tray is ready again
+        self.process()
+        self.assertNotIn('role="alert"', self.page())  # a new run clears it
+
     def test_without_htmx_a_form_post_comes_back_to_the_page(self):
         r = self.client.post("/tray/9/skip", follow_redirects=False)
         self.assertEqual(r.status_code, 404)  # no such tray
