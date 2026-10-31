@@ -1,0 +1,10 @@
+{#- Where the scanner saves to (design: Scan loop, Setup): the path, and a button that copies it
+    (static/js/app.js). -#}
+{% from "components/icons.html" import icon %}
+{% macro path_box(path) -%}
+<div class="path-box">
+  <span class="label">{{ t("scan.save_to") }}</span>
+  <code>{{ path }}</code>
+  <button class="btn" type="button" data-kind="secondary" data-size="small" data-copy="{{ path }}" data-copied="{{ t('scan.copied') }}">{{ icon("copy", 16) }}<span>{{ t("scan.copy") }}</span></button>
+</div>
+{%- endmacro %}

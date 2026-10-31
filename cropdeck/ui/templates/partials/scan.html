@@ -5,6 +5,7 @@
 {% from "components/badge.html" import badge %}
 {% from "components/glass.html" import glass %}
 {% from "components/icons.html" import icon %}
+{% from "components/path_box.html" import path_box %}
 {% from "components/progress.html" import progress %}
 {% from "components/tray_row.html" import tray_row %}
 
@@ -19,14 +20,6 @@
 {%- endif -%}
 {%- endmacro %}
 
-{% macro path_box(v) -%}
-<div class="path-box">
-  <span class="label">{{ t("scan.save_to") }}</span>
-  <code>{{ v.scans }}</code>
-  <button class="btn" type="button" data-kind="secondary" data-size="small" data-copy="{{ v.scans }}" data-copied="{{ t('scan.copied') }}">{{ icon("copy", 16) }}<span>{{ t("scan.copy") }}</span></button>
-</div>
-{%- endmacro %}
-
 {#- ---- the next-step panel: exactly one, by state ---- -#}
 {% macro next_step(v, oob=False) -%}
 {%- if v.state == "empty" -%}
@@ -39,7 +32,7 @@
       <li>{{ t("scan.step_scan") }}</li>
       <li>{{ t("scan.step_wait") }}</li>
     </ol>
-    {{ path_box(v) }}
+    {{ path_box(v.scans) }}
     <div class="actions">{{ process_form(t("scan.no_scans")) }}</div>
   </div>
 </section>
