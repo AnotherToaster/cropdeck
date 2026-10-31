@@ -107,6 +107,7 @@ def register(app, render, fragment, work, hub, runner):
     @app.post("/tray/{n}/skip")
     def skip(request: Request, n: int):
         change_tray(work, runner, hub, n, lambda state, tray, files: fixes.skip(state, n))
+        runner.start(work.folder, work.layout.count)  # the trays behind it run, as after any fix
         return answer(request)
 
     @app.post("/tray/{n}/unskip")

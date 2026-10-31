@@ -1,0 +1,92 @@
+/* A guard stop (design: 3 Guard stop). Tokens only, as in app.css. */
+
+.guard { display: flex; flex-direction: column; gap: var(--space-24); }
+.muted { color: var(--muted); }
+.back-link {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  color: var(--muted);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.guard-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-16);
+  padding: var(--space-24) 28px;
+  border: 1px solid var(--problem);
+  border-radius: var(--radius-panel);
+  background: var(--problem-soft);
+}
+.guard-banner > div { display: flex; flex-direction: column; gap: 6px; }
+.guard-banner .stop-mark { flex: none; margin-top: var(--space-4); color: var(--problem); }
+.banner-label { color: var(--problem); font-size: var(--fs-small); font-weight: 600; }
+.guard-banner h1 { font-size: 28px; line-height: 36px; font-weight: 700; letter-spacing: -0.01em; }
+.guard-banner p { max-width: 760px; }
+
+.guard-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-24); }
+.guard-scans {
+  display: grid;
+  flex: 999 1 700px;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: 20px;
+  min-width: 0;
+}
+.scan-figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  margin: 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--panel);
+}
+.scan-figure figcaption { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-8); }
+.scan-figure figcaption .muted { font-size: var(--fs-small); }
+.scan-title { font-weight: 600; }
+.scan-image { display: block; width: 100%; max-width: 340px; height: auto; align-self: center; border: 1px solid var(--line); border-radius: 6px; background: var(--glass); }
+.shape polygon { fill: none; }
+.shape text { font-family: var(--font); font-weight: 700; paint-order: stroke; stroke-width: 6px; }
+.shape[data-kind="matched"] polygon { stroke: var(--teal); }
+.shape[data-kind="matched"] text { fill: var(--on-teal); stroke: var(--teal); }
+.shape[data-kind="suspicious"] polygon { stroke: var(--amber); }
+.shape[data-kind="suspicious"] text { fill: var(--text); stroke: var(--amber); }
+.shape[data-kind="missing"] polygon { stroke: var(--problem); stroke-dasharray: 24 14; }
+.shape[data-kind="missing"] text { fill: var(--problem); stroke: var(--bg); }
+.found { display: flex; align-items: center; gap: var(--space-8); font-size: 14px; }
+.found .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+.guard-fixes {
+  display: flex;
+  flex: 1 1 340px;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: var(--space-24);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--bg);
+}
+.guard-fixes h2 { font-size: var(--fs-heading); line-height: var(--lh-heading); font-weight: 600; }
+.guard-fixes form { margin: 0; }
+.fix { display: flex; flex-direction: column; gap: var(--space-8); padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.fix .btn { justify-content: flex-start; width: 100%; min-height: 48px; text-align: left; }
+.fix p { color: var(--muted); font-size: 14px; line-height: 20px; }
+.untouched { color: var(--muted); font-size: var(--fs-small); line-height: 19px; }
+
+.guard-waiting {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  padding: 14px 18px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-panel);
+  font-size: 14px;
+}
+.guard-waiting .muted { font-size: var(--fs-small); }

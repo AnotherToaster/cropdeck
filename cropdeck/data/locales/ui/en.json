@@ -127,7 +127,7 @@
     "ready_many": "{n} trays ready",
     "ready_sub_one": "Tray {first} · cards {lo}–{hi}",
     "ready_sub_many": "Trays {first}–{last} · cards {lo}–{hi}",
-    "run_title": "Tray {i} of {total} · card {card}",
+    "run_title": "Tray {n} of {last} · card {card}",
     "stop_after": "Stop after this tray",
     "stopping": "Stops after this tray",
     "progress_label": "Trays processed",
@@ -170,6 +170,53 @@
       "swapped": "Fronts and backs look swapped. Nothing written.",
       "moved": "A card moved between the scans. Nothing written.",
       "unreadable": "A scan can't be read. Nothing written."
-    }
+    },
+    "back": "Back to the scan loop",
+    "banner": "Tray {n} stopped · nothing written",
+    "why": {
+      "count_missing": "Missing on the backs scan: {spots}.",
+      "count_extra": "The backs scan has more cards than the fronts scan.",
+      "notbacks": "The second scan doesn't look like the card backs.",
+      "swapped": "The first scan shows backs, the second fronts.",
+      "moved": "Moved between the scans: {spots}.",
+      "unreadable": "{message}."
+    },
+    "scan": {
+      "front": "Fronts",
+      "back": "Backs"
+    },
+    "found": "{n} cards found",
+    "how": "How to fix it",
+    "fix": {
+      "rescan": {
+        "label": "Rescan the backs",
+        "desc": "The next new scan becomes tray {n}'s backs."
+      },
+      "pairs_only": {
+        "label": "Process with {pairs} pairs",
+        "desc": "Cards with both sides are written. The rest stay in the scan."
+      },
+      "forgot": {
+        "label": "I forgot to scan the backs",
+        "desc": "The next new scan becomes tray {n}'s backs. {back} counts as the next tray's fronts."
+      },
+      "new_back": {
+        "label": "These are backs of another design",
+        "desc": "Learned for this folder, then paired."
+      },
+      "swap": {
+        "label": "Swap them and process",
+        "desc": "{back} is read as fronts, {front} as backs."
+      },
+      "keep": {
+        "label": "Keep as scanned",
+        "desc": "Processed without the backs check."
+      }
+    },
+    "skip": "Skip tray {n} for now",
+    "untouched": "{front} and {back} are not changed.",
+    "waiting": "Waiting for tray {n}:",
+    "waiting_after": "They run after tray {n}.",
+    "and": "and"
   }
 }

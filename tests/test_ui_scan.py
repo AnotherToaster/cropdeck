@@ -32,12 +32,6 @@ except (ImportError, RuntimeError):  # the ui extra (or httpx for tests) is not 
 HX = {"HX-Request": "true"}
 
 
-def without_bottom_row(scan):
-    out = scan.copy()
-    out[round(220 * synth.MM) :, :] = 245
-    return out
-
-
 @unittest.skipIf(TestClient is None, 'needs pip install "cropdeck[ui]"')
 class ScanLoop(unittest.TestCase):
     def setUp(self):
@@ -53,7 +47,7 @@ class ScanLoop(unittest.TestCase):
         f, b, _ = synth.tray(seed, layout="s8")
         cv2.imwrite(str(self.scans / f"scan_{first:03d}.png"), f)
         if backs:
-            back = without_bottom_row(b) if broken else b
+            back = synth.blank(b, 220) if broken else b
             cv2.imwrite(str(self.scans / f"scan_{first + 1:03d}.png"), back)
 
     def page(self):
@@ -162,6 +156,10 @@ class ScanLoop(unittest.TestCase):
         for part in ("next-step", "trays", "stats", "run-head", "run-progress", "slots", "halt"):
             self.assertIn(f'id="{part}"', rendered)
         self.assertEqual(rendered.count('hx-swap-oob="true"'), len(names))
+        # the head names the tray by its own number, not its place in the run
+        later = scan_view.build(self.home, LAYOUTS["s8"], Progress([4, 5], 8))
+        head = self.app.state.fragment(scan_routes.PARTIAL, ["run_head"], later)
+        self.assertIn("Tray 4 of 5 · card 0001", head)
 
 
 @unittest.skipIf(TestClient is None, 'needs pip install "cropdeck[ui]"')

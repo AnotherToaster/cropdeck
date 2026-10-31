@@ -113,7 +113,7 @@
 {%- set p = v.progress -%}
 <div id="run-head" class="next-head"{{ oob_attr(oob) }}>
   <span class="eyebrow" data-tone="working">{{ t("scan.working") }}</span>
-  <h1 class="num">{{ t("scan.run_title", i=p.current + 1, total=p.trays | length, card=no(v.next_card)) }}</h1>
+  <h1 class="num">{{ t("scan.run_title", n=p.tray, last=p.trays[-1], card=no(v.next_card)) }}</h1>
 </div>
 {%- endmacro %}
 
