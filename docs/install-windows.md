@@ -19,17 +19,11 @@ About ten minutes, once. Nothing here needs WSL or a terminal you have used befo
 ## 2. cropdeck
 
 ```powershell
-py -m pip install "cropdeck[all]"
-```
-
-`[all]` brings the optional steps too: reading names and the spreadsheet. Without it you get
-cropping and pairing only.
-
-Until the first release is on PyPI, install it straight from GitHub instead:
-
-```powershell
 py -m pip install "cropdeck[all] @ https://github.com/AnotherToaster/cropdeck/archive/refs/heads/main.zip"
 ```
+
+`[all]` brings the optional parts too: reading names, the spreadsheet and the browser interface.
+Without it you get cropping and pairing only.
 
 ## 3. Tesseract - only for reading names
 
@@ -60,7 +54,7 @@ your PATH - pip prints a warning naming that folder when it is not.
 ## Updating
 
 ```powershell
-py -m pip install --upgrade "cropdeck[all]"
+py -m pip install --upgrade "cropdeck[all] @ https://github.com/AnotherToaster/cropdeck/archive/refs/heads/main.zip"
 ```
 
 Your scans, cards and spreadsheet are never touched by an update.

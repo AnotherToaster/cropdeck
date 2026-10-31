@@ -38,7 +38,7 @@ the rest where it can be checked:
 You need Python 3.10 or newer.
 
 ```bash
-pip install "cropdeck[all] @ git+https://github.com/AnotherToaster/cropdeck"
+pip install "cropdeck[all] @ https://github.com/AnotherToaster/cropdeck/archive/refs/heads/main.zip"
 ```
 
 **On Windows**, follow [docs/install-windows.md](docs/install-windows.md) - Python, cropdeck and

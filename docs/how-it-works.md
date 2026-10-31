@@ -20,8 +20,9 @@ scans/                       cropdeck split              sorted/
                               cropdeck track  ── card-tracker.xlsx (optional)
 ```
 
-Dependencies: Python 3, OpenCV, NumPy; pytesseract and the Tesseract engine for naming; openpyxl
-for the tracker. No network access at runtime.
+Dependencies: Python 3.10+, OpenCV, NumPy; pytesseract and the Tesseract engine for naming;
+openpyxl for the tracker; FastAPI, Uvicorn and Jinja2 for the browser interface. No requests to the
+internet at runtime.
 
 ## 1. cropdeck split — from platen scan to single cards
 
@@ -141,6 +142,14 @@ guesses without renaming.
 ## 3. cropdeck track
 
 See [tracker.md](tracker.md).
+
+## 4. cropdeck ui — the browser interface (early)
+
+A local web page for the whole loop, served from this computer only (`127.0.0.1:8737`, never the
+network) and opened in the browser; installable as an app window. Built in phases from the design
+handoff: foundations, the shell (header, navigation, folder and layout) and the components are in;
+the scan loop, setup, guard stops, review, collection and settings follow. The cards folder given
+to `cropdeck ui FOLDER` is remembered for the next start.
 
 ## Design decisions
 
