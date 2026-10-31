@@ -94,3 +94,17 @@
 .side-layout a { font-weight: 600; text-decoration: none; }
 .side-note { padding: 0 var(--space-4); color: var(--muted); font-size: var(--fs-small); line-height: 19px; }
 
+/* the last run ended in an error */
+#run-failure:empty { display: none; }
+.run-failure {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-control);
+  background: var(--problem-soft);
+  color: var(--problem);
+  font-weight: 600;
+}
+.run-failure .icon { flex: none; margin-top: 2px; }

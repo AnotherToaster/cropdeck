@@ -69,6 +69,7 @@ class View:
     focus_time: str | None = None  # when the fronts scan of the tray in focus was saved
     segments: list = field(default_factory=list)  # the run's progress, one per tray
     slots: list = field(default_factory=list)  # the run's current tray, one Pic per card
+    failure: tuple[int, str] | None = None  # (tray, error) when the last run failed
 
     @property
     def expected(self) -> int:
@@ -86,7 +87,13 @@ def _clock(path: Path) -> str | None:
         return None
 
 
-def build(folder: Path, layout: Layout, progress: Progress | None, page: int = 1) -> View:
+def build(
+    folder: Path,
+    layout: Layout,
+    progress: Progress | None,
+    page: int = 1,
+    failure: tuple[int, str] | None = None,
+) -> View:
     out = folder / paths.SORTED
     state = load_state(out)
     rows_csv = read_manifest(out)
@@ -136,6 +143,7 @@ def build(folder: Path, layout: Layout, progress: Progress | None, page: int = 1
         progress=progress,
         layout=layout,
         focus_time=_clock(nxt.front) if nxt else None,
+        failure=failure if progress is None else None,
     )
     if progress is not None:
         view.segments = _segments(progress)

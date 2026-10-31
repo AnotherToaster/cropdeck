@@ -209,7 +209,8 @@
     "newest_first": "Newest first",
     "newer": "Newer",
     "older": "Older",
-    "busy": "A run is going. Wait until it is done."
+    "busy": "A run is going. Wait until it is done.",
+    "failed": "Processing failed on tray {n}: {error}. Process tries it again; details are in cropdeck's window."
   },
   "stop": {
     "title": {

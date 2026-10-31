@@ -9,6 +9,7 @@
 <div class="scan-loop" hx-ext="sse" sse-connect="/events?page={{ v.page }}">
   <div hidden sse-swap="scans-changed,run-start,run-halting,run-done,tray-start,tray-done,tray-stopped,card-done" hx-swap="none"></div>
   <div class="scan-main">
+    {{ parts.failure(v) }}
     {{ parts.next_step(v) }}
     {{ parts.trays(v) }}
   </div>

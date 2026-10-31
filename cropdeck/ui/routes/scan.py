@@ -20,7 +20,7 @@ from ...state import load_state, save_state
 from .. import live, scan_view
 
 PARTIAL = "partials/scan.html"
-PAGE_PARTS = ("next_step", "trays", "stats")
+PAGE_PARTS = ("failure", "next_step", "trays", "stats")
 # what each event changes on the page; anything not listed changes the whole next step
 EVENT_PARTS = {
     "card-done": ("run_head", "run_progress", "slots", "stats"),
@@ -49,7 +49,7 @@ def change_tray(work, runner, hub, n: int, action) -> None:
 
 def register(app, render, fragment, work, hub, runner):
     def view(page: int = 1) -> scan_view.View:
-        return scan_view.build(work.folder, work.layout, runner.progress, page)
+        return scan_view.build(work.folder, work.layout, runner.progress, page, runner.failure)
 
     def parts(names, page: int = 1) -> str:
         return fragment(PARTIAL, names, view(page), oob=True)
