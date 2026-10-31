@@ -15,66 +15,26 @@ import argparse
 import sys
 from pathlib import Path
 
-import cv2
-import numpy as np
-
-from . import paths
-from .card import FRONT, REAR, guess_dpi
-from .detect import backing_color, find_cards, refine_rect
-from .extract import extract_card
-from .guards import check_backs, thumbs
-from .imageio import IMAGE_EXTS, imread_unicode, imwrite_unicode, save_params
-from .output import pair_sheet, write_debug, write_manifest
+from . import cut, paths
+from .card import FRONT, REAR
+from .detect import backing_color
+from .guards import back_refs, check_backs, learn_back, thumbs
+from .imageio import IMAGE_EXTS
+from .output import pair_sheet, write_manifest
 from .pairing import match_by_position
 from .state import load_state, save_state, scan_key
 
 
 def detect(path: Path, out_dir: Path, args):
-    """Read a scan and locate its cards. Returns (img, dpi, rects)."""
-    img = imread_unicode(path)
-    if img is None:
-        print(f"  ! could not read {path.name}")
-        return None, None, []
-
-    dpi = guess_dpi(img, args.dpi)
-    rects, mask, scale = find_cards(
-        img, dpi, args.tolerance, args.debug, not args.no_split_merged, args.expect
-    )
-
-    if args.debug:
-        write_debug(img, rects, scale, mask, out_dir / "_debug" / f"{path.stem}_debug.jpg")
-
-    if not rects:
-        print(
-            f"  ! {path.name}: no cards found "
-            f"(dpi guessed {dpi:g}; try --dpi, or --tolerance 0.25, and re-run --debug)"
-        )
-    elif args.expect and len(rects) != args.expect:
-        print(
-            f"  ! {path.name}: found {len(rects)}, expected {args.expect} "
-            f"-- check the _debug overlay before trusting this one"
-        )
+    """cut.detect, with its notes printed."""
+    img, dpi, rects, notes = cut.detect(path, out_dir, args)
+    for note in notes:
+        print(f"  ! {note}")
     return img, dpi, rects
 
 
-def render(img, rect, dpi, args, rotate):
-    if not args.no_refine:
-        rect = refine_rect(img, rect, dpi, args.tolerance)
-    card = extract_card(
-        img, rect, dpi, args.pad, args.out_dpi, not args.no_upright, backing_color(img)
-    )
-    if args.max_px and max(card.shape[:2]) > args.max_px:
-        f = args.max_px / max(card.shape[:2])
-        card = cv2.resize(card, None, fx=f, fy=f, interpolation=cv2.INTER_AREA)
-    if rotate:
-        card = np.rot90(card, k=(-rotate // 90) % 4).copy()
-    return card
-
-
-def emit(card, out_dir: Path, name: str, args) -> Path:
-    dst = out_dir / name
-    imwrite_unicode(dst, card, save_params(args.format, args.quality))
-    return dst
+render = cut.render
+emit = cut.write
 
 
 def run_single(files, out_dir: Path, args, rows: list, state: dict) -> int:
@@ -142,18 +102,19 @@ def run_paired(files, out_dir: Path, args, rows: list, state: dict) -> int:
 
         f_th = thumbs(f_img, f_rects, f_dpi, args, bg_f)
         b_th = thumbs(b_img, b_rects, b_dpi, args, bg_b)
-        problem = None if args.no_back_check else check_backs(f_th, b_th, state.get("back_ref"))
+        refs = back_refs(state)
+        problem = None if args.no_back_check else check_backs(f_th, b_th, refs)
         if problem:
             print(
-                f"  ! STOPPED on {f_path.name} / {b_path.name}: {problem}\n"
+                f"  ! STOPPED on {f_path.name} / {b_path.name}: {problem[1]}\n"
                 f"    Nothing was written for this tray, and no later tray was "
                 f"touched either.\n    Fix the scans and run again "
                 f"(or --no-back-check to force it through)."
             )
             state["_stopped"] = True
             break
-        if "back_ref" not in state and b_th:
-            state["back_ref"] = np.median(np.stack(b_th), axis=0).tolist()
+        if not refs:
+            learn_back(state, b_th)
 
         order, why = match_by_position(
             f_rects, b_rects, args.back_order == "mirror", f_img.shape[1]
