@@ -31,6 +31,7 @@ def config_file() -> Path:
 class Session:
     folder: Path | None
     layout: Layout
+    config: Path | None = None  # where the folder is remembered; None: config_file()
 
 
 def layout_of(folder: Path) -> Layout:
@@ -38,17 +39,34 @@ def layout_of(folder: Path) -> Layout:
     return LAYOUTS.get(chosen, LAYOUTS[DEFAULT])
 
 
+def remember(folder: Path, config: Path | None = None) -> None:
+    """Keep folder as the one to open next time."""
+    config = config or config_file()
+    config.parent.mkdir(parents=True, exist_ok=True)
+    config.write_text(json.dumps({"folder": str(folder)}), encoding="utf-8")
+
+
+def choose(work: Session, folder: Path, layout: Layout) -> None:
+    """Switch the UI to folder (set up already, see folders.prepare) with this layout. The layout
+    goes into the folder's state file, so it stays with the folder whichever computer opens it."""
+    out = folder / paths.SORTED
+    kept = state.load_state(out)
+    kept["layout"] = layout.id
+    state.save_state(out, kept)
+    remember(folder, work.config)
+    work.folder, work.layout = folder, layout
+
+
 def load(folder: Path | None, config: Path | None = None) -> Session:
     """The session for `cropdeck ui [FOLDER]`: a folder given is remembered for next time."""
     config = config or config_file()
     if folder is not None:
         folder = folder.expanduser().resolve()
-        config.parent.mkdir(parents=True, exist_ok=True)
-        config.write_text(json.dumps({"folder": str(folder)}), encoding="utf-8")
+        remember(folder, config)
     elif config.exists():
         try:
             last = json.loads(config.read_text(encoding="utf-8")).get("folder")
         except (OSError, ValueError):
             last = None
         folder = Path(last) if last and Path(last).is_dir() else None
-    return Session(folder, layout_of(folder) if folder else LAYOUTS[DEFAULT])
+    return Session(folder, layout_of(folder) if folder else LAYOUTS[DEFAULT], config)

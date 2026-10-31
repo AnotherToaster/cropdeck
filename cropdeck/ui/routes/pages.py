@@ -1,6 +1,6 @@
 """
-The pages of the shell. Each screen is filled in by its phase (handoff: setup 5, review 6,
-collection 7, settings 8); until then it is its title inside the shell. The scan loop has its
+The pages of the shell. Each screen is filled in by its phase (handoff: collection 7,
+settings 8); until then it is its title inside the shell. The scan loop has its
 own module (routes/scan.py). Also the two
 files the installed app window (PWA) needs at the site root.
 """
@@ -28,10 +28,6 @@ def register(app, render, work, static: Path, dev: bool = False):
     @app.get("/settings")
     def settings(request: Request):
         return screen(request, "settings")
-
-    @app.get("/setup")
-    def setup(request: Request):
-        return render(request, "pages/setup.html", current=None)
 
     @app.get("/offline")
     def offline(request: Request):

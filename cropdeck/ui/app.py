@@ -20,7 +20,7 @@ from fastapi.templating import Jinja2Templates
 
 from .. import paths
 from . import i18n, live, session
-from .routes import images, pages, scan, stop
+from .routes import images, pages, scan, setup, stop
 from .runner import Runner
 
 HERE = Path(__file__).resolve().parent
@@ -95,5 +95,6 @@ def create_app(
     pages.register(app, render, work, HERE / "static", dev=dev)
     scan.register(app, render, fragment, work, hub, runner)
     stop.register(app, render, work, hub, runner)
+    setup.register(app, render, fragment, work, runner)
     images.register(app, work, runner)
     return app

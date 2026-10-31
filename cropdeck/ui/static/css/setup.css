@@ -1,0 +1,139 @@
+/* Setup (design: 1 Setup). Tokens only, as in app.css. */
+
+.setup { display: flex; flex-direction: column; gap: 40px; max-width: 1040px; margin: 0 auto; }
+.setup-head { display: flex; flex-direction: column; gap: var(--space-8); }
+.setup-step { display: flex; flex-direction: column; gap: var(--space-16); }
+.setup-step h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  font-size: 19px;
+  line-height: 26px;
+  font-weight: 600;
+}
+.step-no {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: var(--on-teal);
+  font-size: 14px;
+  font-weight: 700;
+}
+.step-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-8); }
+
+.folder-pick { display: flex; flex-direction: column; gap: 6px; }
+.folder-pick > .field-label { color: var(--text); font-size: 14px; }
+.folder-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.folder-row .field-input { flex: 1 1 360px; font-size: 14px; }
+.folder-row .field-input[aria-invalid="true"] { border: 2px solid var(--problem); }
+.save-to { display: flex; flex-direction: column; gap: 6px; }
+.save-to:empty { display: none; }
+
+/* the in-page folder browser */
+.browser {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: var(--space-12);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--panel);
+}
+.browser[hidden] { display: none; }
+.browser-head { display: flex; align-items: center; gap: 10px; }
+.browser-head code { flex: 1; font-family: var(--font-mono); font-size: 14px; word-break: break-all; }
+.browser-head .muted { flex: 1; }
+.browser-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+  gap: var(--space-4);
+  max-height: 320px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.browser-list button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  width: 100%;
+  min-height: var(--target);
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.browser-list button:hover { border-color: var(--line); background: var(--bg); }
+.browser-list button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.browser-list .icon { flex: none; color: var(--muted); }
+.browser-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; }
+.new-folder { display: flex; flex: 1 1 280px; gap: var(--space-8); }
+.new-folder .field-input { flex: 1; min-height: 36px; }
+
+/* the layout picker: real radios, the chosen card in teal */
+.layout-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.layout-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-12);
+  padding: 32px var(--space-16) 18px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--bg);
+  cursor: pointer;
+}
+.layout-option input { position: absolute; top: 14px; left: 14px; width: 18px; height: 18px; margin: 0; accent-color: var(--teal); }
+.layout-option:has(input:checked) { border-color: var(--teal); background: var(--teal-soft); }
+.layout-option:has(input:checked) .glass-card { border-color: var(--teal); color: var(--teal); }
+.layout-option:has(input:focus-visible) { outline: 2px solid var(--teal); outline-offset: 2px; }
+.default-tag {
+  position: absolute;
+  top: var(--space-12);
+  right: var(--space-12);
+  padding: 2px var(--space-8);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+.layout-text { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+.layout-name { font-weight: 600; }
+
+/* scanner settings: checkboxes for the user's own checking, never stored */
+.checklist { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius-panel); overflow: hidden; }
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: var(--space-16) 18px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  cursor: pointer;
+}
+.check:last-child { border-bottom: none; }
+.check input { flex: none; width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--teal); }
+.check > span { display: flex; flex-direction: column; gap: 2px; }
+.check-title { font-weight: 600; }
+
+.setup-foot { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-16); padding-top: var(--space-8); border-top: 1px solid var(--line); }

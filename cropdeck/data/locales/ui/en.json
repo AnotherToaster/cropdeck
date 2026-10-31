@@ -37,7 +37,63 @@
     }
   },
   "setup": {
-    "title": "Where your cards live, and how they lie on the glass"
+    "eyebrow": "Set up once",
+    "title": "Where your cards live, and how they lie on the glass",
+    "folder": {
+      "title": "Cards folder",
+      "label": "Folder for this collection"
+    },
+    "choose": "Choose folder…",
+    "new_folder": "New folder",
+    "creates": "scans and sorted are created inside.",
+    "browse": {
+      "label": "Folders",
+      "top": "This computer",
+      "up": "Up one folder",
+      "close": "Close",
+      "empty": "No folders here.",
+      "name": "Name of the new folder",
+      "create": "Create",
+      "use": "Use this folder"
+    },
+    "layout": {
+      "title": "How cards lie on the glass",
+      "kept": "Remembered for this folder",
+      "default": "Default",
+      "caption": "The A4 glass seen from above, top edge up. Numbers are the counting order."
+    },
+    "scanner": {
+      "title": "Scanner settings to check",
+      "glass": {
+        "title": "Scan the full glass",
+        "sub": "A4 or the largest area, not a preview selection."
+      },
+      "crop": {
+        "title": "Auto-crop off",
+        "sub": "The scanner's own cropping can cut edges."
+      },
+      "dpi": {
+        "title": "400 dpi, or 600 for close detail",
+        "sub": "400 is plenty for listings; 600 shows corners and edges up close."
+      },
+      "lid": {
+        "title": "Lid closed, white side down",
+        "sub": "A white background gives clean, exact edges."
+      },
+      "note": "Scan in your scanner's own software; cropdeck watches the scans folder."
+    },
+    "start": "Start scanning",
+    "error": {
+      "empty": "Enter a folder.",
+      "not_absolute": "Enter the full path, from the drive or /.",
+      "not_found": "That folder doesn't exist.",
+      "unreadable": "That folder can't be read.",
+      "not_writable": "cropdeck can't write there.",
+      "bad_name": "Not a valid folder name.",
+      "exists": "A folder with that name exists.",
+      "running": "A run is going. Change the folder when it's done.",
+      "no_parent": "The folder it goes in doesn't exist."
+    }
   },
   "offline": {
     "title": "Not running",

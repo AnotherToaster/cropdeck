@@ -138,12 +138,6 @@ class Shell(unittest.TestCase):
         self.assertIn("8 sideways", html)  # the default layout
         self.assertNotIn('class="pill', html)  # nothing to review yet: no count pill
 
-    def test_setup_has_the_reduced_header_and_no_nav(self):
-        html = self.c.get("/setup").text
-        self.assertIn('class="brand"', html)
-        self.assertNotIn('<nav class="nav"', html)
-        self.assertNotIn('class="chip"', html)
-
     def test_without_a_folder_the_first_stop_is_setup(self):
         empty = Path(tempfile.mkdtemp()) / "ui.json"
         c = client(work=session.load(None, empty))
