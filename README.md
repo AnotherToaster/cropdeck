@@ -50,8 +50,26 @@ also needs the [Tesseract](https://github.com/tesseract-ocr/tesseract) engine
 
 ## Use
 
-1. Make a folder for your cards with a `scans` folder inside, and set the scanner to save there:
-   full glass, no auto-crop, 400 dpi ([docs/scanning.md](docs/scanning.md)).
+### In the browser
+
+```bash
+cropdeck ui
+```
+
+The interface opens in your browser; it runs on your computer only and needs no internet.
+
+1. **Setup** (first start): choose or make a folder for your cards and pick how the cards lie on
+   the glass. cropdeck makes `scans` and `sorted` inside and shows the path to set as your
+   scanner's save folder: full glass, no auto-crop, 400 dpi ([docs/scanning.md](docs/scanning.md)).
+2. **Scan** a tray: lay the cards, scan, **flip each card where it lies**, scan again. The page
+   notices new scans by itself and always shows the next step; then press **Process**. A tray that
+   does not add up stops with the reason and the ways to fix it.
+3. **Review**: every card, front beside back, with name, number, set, language and variant to
+   fill in - keyboard friendly (J/K, Enter, E, Space for true size).
+
+### On the command line
+
+1. Make a folder for your cards with a `scans` folder inside, and set the scanner to save there.
 2. Lay **8 cards sideways** - two across, four down, all the same way round - and scan.
 3. **Flip each card where it lies** and scan again. Fronts and backs alternate: first scan fronts,
    second scan backs, third scan the next tray's fronts, and so on.
@@ -60,6 +78,8 @@ also needs the [Tesseract](https://github.com/tesseract-ocr/tesseract) engine
    ```bash
    cropdeck run mycards
    ```
+
+Both give you the same folder:
 
 ```
 mycards/
@@ -105,6 +125,14 @@ only. Yu-Gi-Oh cards are smaller (59 × 86 mm); support for other sizes is plann
 | [docs/scanning.md](docs/scanning.md) | scanner settings, layouts, the daily loop, troubleshooting |
 | [docs/how-it-works.md](docs/how-it-works.md) | every step, why it is built that way, every command and option |
 | [docs/tracker.md](docs/tracker.md) | the spreadsheet: sheets, columns, languages and currencies |
+
+## What's next
+
+- Card names in the browser interface (today: `cropdeck run --names` on the command line)
+- Collection view and settings
+- German interface
+- A Windows app: one download, no Python
+- Installing from PyPI (`pip install cropdeck`)
 
 ## Contributing
 
